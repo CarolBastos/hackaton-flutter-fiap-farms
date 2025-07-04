@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'components/user_header_widget.dart';
+import 'components/app_drawer.dart';
+import '../utils/app_colors.dart';
+import '../routes.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -38,7 +41,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     _products.sort((a, b) => b['profit'].compareTo(a['profit']));
     return Scaffold(
-      appBar: AppBar(title: const Text('Dashboard de Vendas')),
+      appBar: AppBar(
+        title: const Text('Dashboard de Vendas'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+      ),
+      drawer: AppDrawer(currentRoute: Routes.dashboard),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -105,7 +113,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   ElevatedButton.icon(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/add-product');
+                      Navigator.pushNamed(context, Routes.addProduct);
                     },
                     icon: const Icon(Icons.add, size: 18),
                     label: const Text('Cadastrar Produto'),
