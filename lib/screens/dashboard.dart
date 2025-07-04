@@ -105,14 +105,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   ElevatedButton.icon(
                     onPressed: () {
-                      // TODO: Implementar navegação para tela de cadastro de produto
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Funcionalidade de cadastro em desenvolvimento',
-                          ),
-                        ),
-                      );
+                      Navigator.pushNamed(context, '/add-product');
                     },
                     icon: const Icon(Icons.add, size: 18),
                     label: const Text('Cadastrar Produto'),
