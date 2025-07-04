@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: InputDecoration(
                     labelText: 'Email',
                     filled: true,
-                    fillColor: AppColors.darkTeal,
+                    fillColor: AppColors.grey,
                     prefixIcon: const Icon(
                       Icons.email,
                       color: AppColors.primary,
@@ -62,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: InputDecoration(
                     labelText: 'Password',
                     filled: true,
-                    fillColor: AppColors.darkTeal,
+                    fillColor: AppColors.grey,
                     prefixIcon: const Icon(
                       Icons.lock,
                       color: AppColors.primary,
@@ -87,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(30.0),
                     ),
                   ),
-                  child: const Text('Login', style: TextStyle(fontSize: 18.0)),
+                  child: const Text('Entrar', style: TextStyle(fontSize: 18.0)),
                 ),
                 const SizedBox(height: 10.0),
                 // Error Message Display
