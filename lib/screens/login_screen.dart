@@ -2,7 +2,6 @@ import 'package:fiap_farms/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../di/dependency_injection.dart';
 import '../presentation/controllers/auth_controller.dart';
 import '../routes.dart';
 
@@ -16,121 +15,113 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  late final AuthController _authController;
-
-  @override
-  void initState() {
-    super.initState();
-    _authController = DependencyInjection().authController;
-  }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: _authController,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF7F3FC), // Light purple background
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30.0),
-          child: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    'FIAP Farms',
-                    style: TextStyle(
-                      fontSize: 36.0,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary[800],
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F3FC), // Light purple background
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30.0),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'FIAP Farms',
+                  style: TextStyle(
+                    fontSize: 36.0,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary[800],
+                  ),
+                ),
+                const SizedBox(height: 40.0),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    filled: true,
+                    fillColor: AppColors.grey,
+                    prefixIcon: const Icon(
+                      Icons.email,
+                      color: AppColors.primary,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide.none,
                     ),
                   ),
-                  const SizedBox(height: 40.0),
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      filled: true,
-                      fillColor: AppColors.grey,
-                      prefixIcon: const Icon(
-                        Icons.email,
-                        color: AppColors.primary,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide.none,
-                      ),
+                ),
+                const SizedBox(height: 20.0),
+                // Password TextField
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    filled: true,
+                    fillColor: AppColors.grey,
+                    prefixIcon: const Icon(
+                      Icons.lock,
+                      color: AppColors.primary,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide.none,
                     ),
                   ),
-                  const SizedBox(height: 20.0),
-                  // Password TextField
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      filled: true,
-                      fillColor: AppColors.grey,
-                      prefixIcon: const Icon(
-                        Icons.lock,
-                        color: AppColors.primary,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20.0),
-                  // Login Button
-                  Consumer<AuthController>(
-                    builder: (context, authController, child) {
-                      return Column(
-                        children: [
-                          ElevatedButton(
-                            onPressed: authController.isLoading ? null : _login,
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 15.0,
-                                horizontal: 80.0,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              ),
+                ),
+                const SizedBox(height: 20.0),
+                // Login Button
+                Consumer<AuthController>(
+                  builder: (context, authController, child) {
+                    return Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: authController.isLoading
+                              ? null
+                              : () => _login(authController),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 15.0,
+                              horizontal: 80.0,
                             ),
-                            child: authController.isLoading
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
-                                    ),
-                                  )
-                                : const Text(
-                                    'Entrar',
-                                    style: TextStyle(fontSize: 18.0),
-                                  ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
                           ),
-                          const SizedBox(height: 10.0),
-                          // Error Message Display
-                          if (authController.errorMessage.isNotEmpty)
-                            Text(
-                              authController.errorMessage,
-                              style: const TextStyle(
-                                color: AppColors.error,
-                                fontSize: 14.0,
-                              ),
+                          child: authController.isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : const Text(
+                                  'Entrar',
+                                  style: TextStyle(fontSize: 18.0),
+                                ),
+                        ),
+                        const SizedBox(height: 10.0),
+                        // Error Message Display
+                        if (authController.errorMessage.isNotEmpty)
+                          Text(
+                            authController.errorMessage,
+                            style: const TextStyle(
+                              color: AppColors.error,
+                              fontSize: 14.0,
                             ),
-                        ],
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 20.0),
-                ],
-              ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 20.0),
+              ],
             ),
           ),
         ),
@@ -138,13 +129,13 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _login() async {
-    await _authController.signIn(
+  void _login(AuthController authController) async {
+    await authController.signIn(
       _emailController.text,
       _passwordController.text,
     );
 
-    if (_authController.isAuthenticated) {
+    if (authController.isAuthenticated) {
       if (mounted) {
         Navigator.pushReplacementNamed(context, Routes.dashboard);
       }

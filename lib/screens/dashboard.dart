@@ -1,50 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
-class UserEmailHeader extends StatelessWidget {
-  const UserEmailHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return const SizedBox.shrink();
-    }
-    final uid = user.uid;
-
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance.collection('users').doc(uid).get(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: LinearProgressIndicator(),
-          );
-        }
-        if (snapshot.hasError || !snapshot.hasData || !snapshot.data!.exists) {
-          return const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              'Usuário não encontrado',
-              style: TextStyle(color: Colors.red),
-            ),
-          );
-        }
-        final data = snapshot.data!.data() as Map<String, dynamic>;
-        final email = data['email'] ?? '';
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0),
-          child: Text(
-            'Bem-vindo, $email',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        );
-      },
-    );
-  }
-}
+import 'components/user_header_widget.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -89,7 +45,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const UserEmailHeader(),
+              const UserHeader(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -140,9 +96,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Produtos por Lucro',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Produtos por Lucro',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // TODO: Implementar navegação para tela de cadastro de produto
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Funcionalidade de cadastro em desenvolvimento',
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('Cadastrar Produto'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               ListView.builder(
