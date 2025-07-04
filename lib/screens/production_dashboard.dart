@@ -37,7 +37,7 @@ class _ProductionDashboardState extends State<ProductionDashboard> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              Navigator.pushNamed(context, '/add-production');
+              Navigator.pushNamed(context, Routes.addProduction);
             },
             tooltip: 'Adicionar Lote',
           ),

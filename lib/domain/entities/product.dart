@@ -24,6 +24,20 @@ class Product {
   });
 
   factory Product.fromFirestore(Map<String, dynamic> data, String id) {
+    print('Product.fromFirestore: Processando dados: $data');
+
+    DateTime createdAt;
+    try {
+      if (data['createdAt'] != null) {
+        createdAt = (data['createdAt'] as Timestamp).toDate();
+      } else {
+        createdAt = DateTime.now();
+      }
+    } catch (e) {
+      print('Product.fromFirestore: Erro ao processar createdAt: $e');
+      createdAt = DateTime.now();
+    }
+
     return Product(
       id: id,
       name: data['name'] ?? '',
@@ -31,7 +45,7 @@ class Product {
       category: data['category'] ?? '',
       unitOfMeasure: data['unitOfMeasure'] ?? '',
       estimatedCostPerUnit: (data['estimatedCostPerUnit'] ?? 0.0).toDouble(),
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: createdAt,
       createdBy: data['createdBy'] ?? '',
       isActive: data['isActive'] ?? true,
     );
