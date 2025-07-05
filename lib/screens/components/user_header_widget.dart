@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../utils/app_colors.dart';
 
 class UserHeader extends StatelessWidget {
   const UserHeader({super.key});
@@ -27,7 +28,7 @@ class UserHeader extends StatelessWidget {
             padding: EdgeInsets.all(8.0),
             child: Text(
               'Usuário não encontrado',
-              style: TextStyle(color: Colors.red),
+              style: TextStyle(color: AppColors.danger),
             ),
           );
         }

@@ -32,21 +32,21 @@ class MenuDrawer extends StatelessWidget {
         children: [
           const CircleAvatar(
             radius: 30,
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.white,
             child: Icon(Icons.agriculture, size: 40, color: AppColors.primary),
           ),
           const SizedBox(height: 10),
           const Text(
             'FIAP Farms',
             style: TextStyle(
-              color: Colors.white,
+              color: AppColors.textWhite,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
           const Text(
             'Cooperativa de Fazendas',
-            style: TextStyle(color: Colors.white70, fontSize: 14),
+            style: TextStyle(color: AppColors.textWhite70, fontSize: 14),
           ),
         ],
       ),
@@ -132,8 +132,8 @@ class MenuDrawer extends StatelessWidget {
           },
         ),
         ListTile(
-          leading: const Icon(Icons.logout, color: Colors.red),
-          title: const Text('Sair', style: TextStyle(color: Colors.red)),
+          leading: const Icon(Icons.logout, color: AppColors.danger),
+          title: const Text('Sair', style: TextStyle(color: AppColors.danger)),
           onTap: () {
             Navigator.pop(context);
             Navigator.pushReplacementNamed(context, Routes.login);

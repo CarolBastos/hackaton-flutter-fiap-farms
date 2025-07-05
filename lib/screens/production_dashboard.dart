@@ -75,28 +75,28 @@ class _ProductionDashboardState extends State<ProductionDashboard> {
           title: 'Planejado',
           count: controller.planejadoCount,
           icon: Icons.schedule,
-          color: Colors.blue,
+          color: AppColors.statusPlanejado,
           emoji: '📋',
         ),
         _StatusCard(
           title: 'Aguardando',
           count: controller.aguardandoCount,
           icon: Icons.pending,
-          color: Colors.orange,
+          color: AppColors.statusAguardando,
           emoji: '🟡',
         ),
         _StatusCard(
           title: 'Em Produção',
           count: controller.emProducaoCount,
           icon: Icons.agriculture,
-          color: Colors.green,
+          color: AppColors.statusEmProducao,
           emoji: '🌱',
         ),
         _StatusCard(
           title: 'Colhido',
           count: controller.colhidoCount,
           icon: Icons.check_circle,
-          color: Colors.purple,
+          color: AppColors.statusColhido,
           emoji: '🟢',
         ),
       ],
@@ -142,7 +142,7 @@ class _ProductionDashboardState extends State<ProductionDashboard> {
                       }
                     }
                   },
-                  backgroundColor: Colors.grey.shade200,
+                  backgroundColor: AppColors.greyLight,
                   selectedColor: AppColors.primary.withOpacity(0.2),
                 ),
               );
@@ -160,11 +160,15 @@ class _ProductionDashboardState extends State<ProductionDashboard> {
       return const Center(
         child: Column(
           children: [
-            Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey),
+            Icon(
+              Icons.inventory_2_outlined,
+              size: 64,
+              color: AppColors.textLight,
+            ),
             SizedBox(height: 16),
             Text(
               'Nenhum lote de produção encontrado',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(fontSize: 16, color: AppColors.textLight),
             ),
           ],
         ),
@@ -335,36 +339,48 @@ class _ProductionBatchCard extends StatelessWidget {
                 Icon(
                   Icons.calendar_today,
                   size: 16,
-                  color: Colors.grey.shade600,
+                  color: AppColors.textSecondary,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   'Início: ${_formatDate(batch.startDate)}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(width: 16),
-                Icon(Icons.event, size: 16, color: Colors.grey.shade600),
+                Icon(Icons.event, size: 16, color: AppColors.textSecondary),
                 const SizedBox(width: 4),
                 Text(
                   'Colheita: ${_formatDate(batch.estimatedEndDate)}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.scale, size: 16, color: Colors.grey.shade600),
+                Icon(Icons.scale, size: 16, color: AppColors.textSecondary),
                 const SizedBox(width: 4),
                 Text(
                   'Estimado: ${batch.estimatedQuantity.toStringAsFixed(1)} kg',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 if (batch.actualQuantity != null) ...[
                   const SizedBox(width: 16),
                   Text(
                     'Real: ${batch.actualQuantity!.toStringAsFixed(1)} kg',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ],
@@ -373,7 +389,7 @@ class _ProductionBatchCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 'Notas: ${batch.notes}',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
             ],
             const SizedBox(height: 12),
@@ -397,7 +413,7 @@ class _ProductionBatchCard extends StatelessWidget {
           onPressed: () => onStatusChanged(status.name),
           style: ElevatedButton.styleFrom(
             backgroundColor: _getStatusColor(status),
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.textWhite,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             textStyle: const TextStyle(fontSize: 12),
           ),
@@ -440,15 +456,15 @@ class _ProductionBatchCard extends StatelessWidget {
   Color _getStatusColor(ProductionStatus status) {
     switch (status) {
       case ProductionStatus.planejado:
-        return Colors.blue;
+        return AppColors.statusPlanejado;
       case ProductionStatus.aguardando_inicio:
-        return Colors.orange;
+        return AppColors.statusAguardando;
       case ProductionStatus.em_producao:
-        return Colors.green;
+        return AppColors.statusEmProducao;
       case ProductionStatus.colhido:
-        return Colors.purple;
+        return AppColors.statusColhido;
       case ProductionStatus.cancelado:
-        return Colors.red;
+        return AppColors.statusCancelado;
     }
   }
 

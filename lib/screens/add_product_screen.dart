@@ -171,7 +171,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       },
                       secondary: Icon(
                         _isActive ? Icons.check_circle : Icons.cancel,
-                        color: _isActive ? Colors.green : Colors.red,
+                        color: _isActive ? AppColors.success : AppColors.danger,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -183,7 +183,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           : _saveProduct,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.textWhite,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -196,7 +196,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
+                                  AppColors.textWhite,
                                 ),
                               ),
                             )
@@ -215,13 +215,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.red.shade50,
-                          border: Border.all(color: Colors.red.shade200),
+                          color: AppColors.errorLight,
+                          border: Border.all(color: AppColors.errorBorder),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           productController.errorMessage,
-                          style: TextStyle(color: Colors.red.shade700),
+                          style: TextStyle(color: AppColors.errorText),
                         ),
                       ),
                   ],
@@ -258,7 +258,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Produto cadastrado com sucesso!'),
-              backgroundColor: Colors.green,
+              backgroundColor: AppColors.success,
             ),
           );
           Navigator.pop(context);

@@ -169,7 +169,7 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
                           : _saveProductionBatch,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.textWhite,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -182,7 +182,7 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
+                                  AppColors.textWhite,
                                 ),
                               ),
                             )
@@ -274,9 +274,9 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
 
     if (_selectedProductId == null || _selectedProductName == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selecione um produto'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text('Selecione um produto'),
+          backgroundColor: AppColors.danger,
         ),
       );
       return;
@@ -284,9 +284,9 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
 
     if (_estimatedEndDate.isBefore(_startDate)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Data de colheita deve ser posterior à data de início'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text('Data de colheita deve ser posterior à data de início'),
+          backgroundColor: AppColors.danger,
         ),
       );
       return;
@@ -309,9 +309,9 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
         .createProductionBatch(batch)
         .then((_) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Lote de produção criado com sucesso!'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              content: const Text('Lote de produção criado com sucesso!'),
+              backgroundColor: AppColors.success,
             ),
           );
           Navigator.pop(context);
@@ -320,7 +320,7 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Erro ao criar lote: $error'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.danger,
             ),
           );
         });

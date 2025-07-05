@@ -31,7 +31,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
       ),
       backgroundColor: backgroundColor ?? AppColors.primary,
-      foregroundColor: foregroundColor ?? Colors.white,
+      foregroundColor: foregroundColor ?? AppColors.textWhite,
       centerTitle: centerTitle,
       elevation: elevation,
       leading: showDrawer
@@ -129,7 +129,7 @@ class TabAppBar extends StatelessWidget implements PreferredSizeWidget {
         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
       ),
       backgroundColor: AppColors.primary,
-      foregroundColor: Colors.white,
+      foregroundColor: AppColors.textWhite,
       centerTitle: true,
       elevation: 0,
       leading: IconButton(
@@ -141,9 +141,9 @@ class TabAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: actions,
       bottom: TabBar(
         controller: tabController,
-        indicatorColor: Colors.white,
-        labelColor: Colors.white,
-        unselectedLabelColor: Colors.white70,
+        indicatorColor: AppColors.textWhite,
+        labelColor: AppColors.textWhite,
+        unselectedLabelColor: AppColors.textWhite70,
         tabs: tabs,
       ),
     );

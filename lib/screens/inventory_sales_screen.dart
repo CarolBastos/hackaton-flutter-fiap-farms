@@ -95,7 +95,7 @@ class _InventoryTab extends StatelessWidget {
                     label: const Text('Adicionar ao Estoque'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.textWhite,
                     ),
                   ),
                 ],
@@ -105,13 +105,13 @@ class _InventoryTab extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    border: Border.all(color: Colors.red.shade200),
+                    color: AppColors.errorLight,
+                    border: Border.all(color: AppColors.errorBorder),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     inventoryController.errorMessage,
-                    style: TextStyle(color: Colors.red.shade700),
+                    style: TextStyle(color: AppColors.errorText),
                   ),
                 ),
               const SizedBox(height: 16),
@@ -120,7 +120,10 @@ class _InventoryTab extends StatelessWidget {
                     ? const Center(
                         child: Text(
                           'Nenhum item no estoque. Adicione produtos para começar.',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppColors.textLight,
+                          ),
                         ),
                       )
                     : ListView.builder(
@@ -135,7 +138,9 @@ class _InventoryTab extends StatelessWidget {
                                 backgroundColor: AppColors.primary,
                                 child: Text(
                                   '${index + 1}',
-                                  style: const TextStyle(color: Colors.white),
+                                  style: const TextStyle(
+                                    color: AppColors.textWhite,
+                                  ),
                                 ),
                               ),
                               title: Text(
@@ -156,14 +161,14 @@ class _InventoryTab extends StatelessWidget {
                                     'R\$ ${item.estimatedCostPerUnit.toStringAsFixed(2)}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.green,
+                                      color: AppColors.success,
                                     ),
                                   ),
                                   Text(
                                     'por ${item.unitOfMeasure}',
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey,
+                                      color: AppColors.textLight,
                                     ),
                                   ),
                                 ],
@@ -314,7 +319,7 @@ class _SalesTab extends StatelessWidget {
                     label: const Text('Nova Venda'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.textWhite,
                     ),
                   ),
                 ],
@@ -324,13 +329,13 @@ class _SalesTab extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    border: Border.all(color: Colors.red.shade200),
+                    color: AppColors.errorLight,
+                    border: Border.all(color: AppColors.errorBorder),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     salesController.errorMessage,
-                    style: TextStyle(color: Colors.red.shade700),
+                    style: TextStyle(color: AppColors.errorText),
                   ),
                 ),
               const SizedBox(height: 16),
@@ -339,7 +344,10 @@ class _SalesTab extends StatelessWidget {
                     ? const Center(
                         child: Text(
                           'Nenhuma venda registrada. Registre sua primeira venda!',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppColors.textLight,
+                          ),
                         ),
                       )
                     : ListView.builder(
@@ -350,10 +358,12 @@ class _SalesTab extends StatelessWidget {
                             margin: const EdgeInsets.only(bottom: 8),
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor: Colors.green,
+                                backgroundColor: AppColors.success,
                                 child: Text(
                                   'R\$',
-                                  style: const TextStyle(color: Colors.white),
+                                  style: const TextStyle(
+                                    color: AppColors.textWhite,
+                                  ),
                                 ),
                               ),
                               title: Text(
@@ -373,14 +383,14 @@ class _SalesTab extends StatelessWidget {
                                     'R\$ ${sale.totalSaleAmount.toStringAsFixed(2)}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.green,
+                                      color: AppColors.success,
                                     ),
                                   ),
                                   Text(
                                     'Lucro: R\$ ${sale.calculatedProfit.toStringAsFixed(2)}',
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      color: Colors.green,
+                                      color: AppColors.success,
                                     ),
                                   ),
                                 ],
@@ -578,7 +588,10 @@ class _HistoryTab extends StatelessWidget {
                     ? const Center(
                         child: Text(
                           'Nenhuma venda registrada.',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppColors.textLight,
+                          ),
                         ),
                       )
                     : ListView.builder(
@@ -589,8 +602,11 @@ class _HistoryTab extends StatelessWidget {
                             margin: const EdgeInsets.only(bottom: 8),
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor: Colors.blue,
-                                child: Icon(Icons.history, color: Colors.white),
+                                backgroundColor: AppColors.info,
+                                child: Icon(
+                                  Icons.history,
+                                  color: AppColors.textWhite,
+                                ),
                               ),
                               title: Text(
                                 sale.productName,
@@ -605,7 +621,7 @@ class _HistoryTab extends StatelessWidget {
                                 'R\$ ${sale.totalSaleAmount.toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.green,
+                                  color: AppColors.success,
                                 ),
                               ),
                             ),

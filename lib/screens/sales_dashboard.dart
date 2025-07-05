@@ -197,7 +197,10 @@ class _SalesDashboardState extends State<SalesDashboard> {
                         child: Text(
                           'Nenhum produto cadastrado ainda. Clique em "Cadastrar Produto" para começar.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppColors.textLight,
+                          ),
                         ),
                       ),
                     )
@@ -215,7 +218,9 @@ class _SalesDashboardState extends State<SalesDashboard> {
                             backgroundColor: AppColors.primary,
                             child: Text(
                               '${index + 1}',
-                              style: const TextStyle(color: Colors.white),
+                              style: const TextStyle(
+                                color: AppColors.textWhite,
+                              ),
                             ),
                           ),
                           title: Text(product.name),
@@ -230,14 +235,14 @@ class _SalesDashboardState extends State<SalesDashboard> {
                                 'R\$ ${profit.toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.green,
+                                  color: AppColors.success,
                                 ),
                               ),
                               Text(
                                 'Custo: R\$ ${product.estimatedCostPerUnit.toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontSize: 12,
-                                  color: Colors.grey,
+                                  color: AppColors.textLight,
                                 ),
                               ),
                             ],
@@ -307,7 +312,7 @@ class _SalesDashboardState extends State<SalesDashboard> {
                                 BarChartRodData(
                                   toY:
                                       productsWithProfit[i]['profit'] as double,
-                                  color: Colors.green,
+                                  color: AppColors.success,
                                   width: 22,
                                 ),
                               ],
@@ -418,7 +423,7 @@ class _IndicatorCard extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 28, color: Colors.green),
+            Icon(icon, size: 28, color: AppColors.success),
             const SizedBox(height: 8),
             Text(
               value,
