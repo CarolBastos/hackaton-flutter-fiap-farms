@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../utils/app_colors.dart';
 import '../../routes.dart';
+import '../../presentation/controllers/auth_controller.dart';
 
 class MenuDrawer extends StatelessWidget {
   final String currentRoute;
@@ -134,9 +136,9 @@ class MenuDrawer extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.logout, color: AppColors.danger),
           title: const Text('Sair', style: TextStyle(color: AppColors.danger)),
-          onTap: () {
+          onTap: () async {
             Navigator.pop(context);
-            Navigator.pushReplacementNamed(context, Routes.login);
+            await _performLogout(context);
           },
         ),
       ],
@@ -150,5 +152,32 @@ class MenuDrawer extends StatelessWidget {
         duration: const Duration(seconds: 2),
       ),
     );
+  }
+
+  Future<void> _performLogout(BuildContext context) async {
+    try {
+      final authController = Provider.of<AuthController>(
+        context,
+        listen: false,
+      );
+      await authController.signOut();
+
+      if (context.mounted) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          Routes.login,
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao fazer logout: ${e.toString()}'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
+    }
   }
 }
