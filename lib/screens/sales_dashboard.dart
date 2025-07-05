@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import 'components/user_header_widget.dart';
-import 'components/app_drawer.dart';
+import 'components/menu_drawer.dart';
 import 'components/custom_app_bar.dart';
 import '../utils/app_colors.dart';
 import '../routes.dart';
@@ -41,7 +41,7 @@ class _SalesDashboardState extends State<SalesDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: DashboardAppBar(title: 'Dashboard de Vendas'),
-      drawer: AppDrawer(currentRoute: Routes.dashboard),
+      drawer: MenuDrawer(currentRoute: Routes.dashboard),
       body: Consumer3<ProductController, SalesController, InventoryController>(
         builder: (context, productController, salesController, inventoryController, child) {
           if (productController.isLoading ||

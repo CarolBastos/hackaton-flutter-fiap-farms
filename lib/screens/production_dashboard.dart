@@ -4,7 +4,7 @@ import '../domain/entities/production_batch.dart';
 import '../presentation/controllers/production_controller.dart';
 import '../utils/app_colors.dart';
 import '../routes.dart';
-import 'components/app_drawer.dart';
+import 'components/menu_drawer.dart';
 import 'components/custom_app_bar.dart';
 
 class ProductionDashboard extends StatefulWidget {
@@ -30,7 +30,7 @@ class _ProductionDashboardState extends State<ProductionDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: DashboardAppBar(title: 'Dashboard de Produção'),
-      drawer: AppDrawer(currentRoute: Routes.productionDashboard),
+      drawer: MenuDrawer(currentRoute: Routes.productionDashboard),
       body: Consumer<ProductionController>(
         builder: (context, productionController, child) {
           if (productionController.isLoading) {

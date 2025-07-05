@@ -7,7 +7,7 @@ import '../domain/entities/sales_record.dart';
 import '../utils/app_colors.dart';
 import '../routes.dart';
 import 'components/user_header_widget.dart';
-import 'components/app_drawer.dart';
+import 'components/menu_drawer.dart';
 import 'components/custom_app_bar.dart';
 
 class InventorySalesScreen extends StatefulWidget {
@@ -54,7 +54,7 @@ class _InventorySalesScreenState extends State<InventorySalesScreen>
           Tab(icon: Icon(Icons.history), text: 'Histórico'),
         ],
       ),
-      drawer: AppDrawer(currentRoute: Routes.inventorySales),
+      drawer: MenuDrawer(currentRoute: Routes.inventorySales),
       body: TabBarView(
         controller: _tabController,
         children: const [_InventoryTab(), _SalesTab(), _HistoryTab()],

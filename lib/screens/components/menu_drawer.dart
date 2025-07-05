@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import '../../utils/app_colors.dart';
 import '../../routes.dart';
 
-class AppDrawer extends StatelessWidget {
+class MenuDrawer extends StatelessWidget {
   final String currentRoute;
 
-  const AppDrawer({super.key, required this.currentRoute});
+  const MenuDrawer({super.key, required this.currentRoute});
 
   @override
   Widget build(BuildContext context) {
