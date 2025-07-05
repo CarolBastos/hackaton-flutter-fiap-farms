@@ -24,8 +24,6 @@ class Product {
   });
 
   factory Product.fromFirestore(Map<String, dynamic> data, String id) {
-    print('Product.fromFirestore: Processando dados: $data');
-
     return Product(
       id: id,
       name: data['name'] ?? '',
@@ -97,7 +95,6 @@ class Product {
       try {
         return DateTime.parse(value);
       } catch (e) {
-        print('Product._parseDateTime: Erro ao processar data: $e');
         return DateTime.now();
       }
     }

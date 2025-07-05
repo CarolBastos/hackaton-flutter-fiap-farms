@@ -38,25 +38,18 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<List<Product>> getProducts() async {
     try {
-      print('Buscando produtos na collection: products');
-
       final querySnapshot = await _firestore
           .collection('products')
           .where('isActive', isEqualTo: true)
           .orderBy('createdAt', descending: true)
           .get();
 
-      print('Documentos encontrados: ${querySnapshot.docs.length}');
-
       final products = querySnapshot.docs.map((doc) {
-        print('Processando documento: ${doc.id}');
         return Product.fromFirestore(doc.data(), doc.id);
       }).toList();
 
-      print('Produtos processados: ${products.length}');
       return products;
     } catch (e) {
-      print('Erro ao buscar produtos: $e');
       throw Exception('Erro ao buscar produtos: $e');
     }
   }

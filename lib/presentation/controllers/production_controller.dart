@@ -36,18 +36,12 @@ class ProductionController extends ChangeNotifier {
     if (_selectedStatusFilter.isEmpty) {
       return _productionBatches;
     }
-    print('Filtro selecionado: $_selectedStatusFilter');
-    print('Total de lotes: ${_productionBatches.length}');
 
     final filteredBatches = _productionBatches.where((batch) {
       final matches = batch.status.name == _selectedStatusFilter;
-      print(
-        'Lote ${batch.productName}: status=${batch.status.name}, matches=$matches',
-      );
       return matches;
     }).toList();
 
-    print('Lotes filtrados: ${filteredBatches.length}');
     return filteredBatches;
   }
 

@@ -95,7 +95,6 @@ class InventoryItem {
       try {
         return DateTime.parse(value);
       } catch (e) {
-        print('InventoryItem._parseDateTime: Erro ao processar data: $e');
         return DateTime.now();
       }
     }

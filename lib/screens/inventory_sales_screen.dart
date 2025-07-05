@@ -6,7 +6,6 @@ import '../presentation/controllers/product_controller.dart';
 import '../domain/entities/sales_record.dart';
 import '../utils/app_colors.dart';
 import '../routes.dart';
-import 'components/user_header_widget.dart';
 import 'components/menu_drawer.dart';
 import 'components/custom_app_bar.dart';
 

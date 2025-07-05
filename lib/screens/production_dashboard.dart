@@ -143,7 +143,7 @@ class _ProductionDashboardState extends State<ProductionDashboard> {
                     }
                   },
                   backgroundColor: AppColors.greyLight,
-                  selectedColor: AppColors.primary.withOpacity(0.2),
+                  selectedColor: AppColors.primary.withValues(alpha: 0.2),
                 ),
               );
             }).toList(),
@@ -312,7 +312,7 @@ class _ProductionBatchCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: _getStatusColor(batch.status).withOpacity(0.2),
+                    color: _getStatusColor(batch.status).withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(

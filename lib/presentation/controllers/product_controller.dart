@@ -36,16 +36,13 @@ class ProductController extends ChangeNotifier {
   }
 
   Future<void> loadProducts() async {
-    print('ProductController: Iniciando carregamento de produtos');
     _setLoading(true);
     _clearError();
 
     try {
       _products = await _getProductsUseCase.execute();
-      print('ProductController: Produtos carregados: ${_products.length}');
       notifyListeners();
     } catch (e) {
-      print('ProductController: Erro ao carregar produtos: $e');
       _setError(e.toString());
     } finally {
       _setLoading(false);

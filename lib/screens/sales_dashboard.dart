@@ -10,8 +10,6 @@ import '../presentation/controllers/product_controller.dart';
 import '../presentation/controllers/sales_controller.dart';
 import '../presentation/controllers/inventory_controller.dart';
 import '../domain/entities/product.dart';
-import '../domain/entities/sales_record.dart';
-import '../domain/entities/inventory_item.dart';
 
 class SalesDashboard extends StatefulWidget {
   const SalesDashboard({super.key});
@@ -286,8 +284,9 @@ class _SalesDashboardState extends State<SalesDashboard> {
                                 getTitlesWidget: (value, meta) {
                                   final idx = value.toInt();
                                   if (idx < 0 ||
-                                      idx >= productsWithProfit.length)
+                                      idx >= productsWithProfit.length) {
                                     return const SizedBox.shrink();
+                                  }
                                   final product =
                                       productsWithProfit[idx]['product']
                                           as Product;

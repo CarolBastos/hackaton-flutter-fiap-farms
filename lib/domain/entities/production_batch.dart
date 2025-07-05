@@ -186,7 +186,6 @@ class ProductionBatch {
       try {
         return DateTime.parse(value);
       } catch (e) {
-        print('ProductionBatch._parseDateTime: Erro ao processar data: $e');
         return DateTime.now();
       }
     }

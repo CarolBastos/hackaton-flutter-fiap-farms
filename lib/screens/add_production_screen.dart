@@ -4,7 +4,6 @@ import '../domain/entities/production_batch.dart';
 import '../presentation/controllers/production_controller.dart';
 import '../presentation/controllers/product_controller.dart';
 import '../utils/app_colors.dart';
-import '../routes.dart';
 import 'components/custom_app_bar.dart';
 
 class AddProductionScreen extends StatefulWidget {
@@ -29,7 +28,6 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      print('AddProductionScreen: Carregando produtos...');
       Provider.of<ProductController>(context, listen: false).loadProducts();
     });
   }
@@ -37,9 +35,7 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: FormAppBar(
-        title: 'Novo Lote de Produção',
-      ),
+      appBar: FormAppBar(title: 'Novo Lote de Produção'),
       body: Consumer2<ProductionController, ProductController>(
         builder: (context, productionController, productController, child) {
           return Padding(
@@ -50,7 +46,6 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    
                     // Seleção do Produto
                     _buildProductSelector(productController),
                     const SizedBox(height: 16),
@@ -202,9 +197,6 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
   }
 
   Widget _buildProductSelector(ProductController productController) {
-    print(
-      'AddProductionScreen: Construindo seletor com ${productController.products.length} produtos',
-    );
 
     return DropdownButtonFormField<String>(
       value: _selectedProductId,
@@ -214,9 +206,6 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
         prefixIcon: Icon(Icons.inventory),
       ),
       items: productController.products.map((product) {
-        print(
-          'AddProductionScreen: Produto: ${product.name} (ID: ${product.id})',
-        );
         return DropdownMenuItem(value: product.id, child: Text(product.name));
       }).toList(),
       onChanged: (value) {
@@ -285,7 +274,9 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
     if (_estimatedEndDate.isBefore(_startDate)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Data de colheita deve ser posterior à data de início'),
+          content: const Text(
+            'Data de colheita deve ser posterior à data de início',
+          ),
           backgroundColor: AppColors.danger,
         ),
       );

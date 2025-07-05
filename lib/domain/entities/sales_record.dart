@@ -131,7 +131,6 @@ class SalesRecord {
       try {
         return DateTime.parse(value);
       } catch (e) {
-        print('SalesRecord._parseDateTime: Erro ao processar data: $e');
         return DateTime.now();
       }
     }
