@@ -6,6 +6,7 @@ import '../utils/app_colors.dart';
 import '../routes.dart';
 import 'components/menu_drawer.dart';
 import 'components/custom_app_bar.dart';
+import 'components/custom_button.dart';
 
 class ProductionDashboard extends StatefulWidget {
   const ProductionDashboard({super.key});
@@ -185,21 +186,13 @@ class _ProductionDashboardState extends State<ProductionDashboard> {
               'Lotes de Produção (${batches.length})',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            ElevatedButton.icon(
+            CustomButton.small(
               onPressed: () {
                 Navigator.pushNamed(context, Routes.addProduction);
               },
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Adicionar Lote'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
+              text: 'Adicionar Lote',
+              icon: Icons.add,
+              variant: ButtonVariant.primary,
             ),
           ],
         ),
@@ -409,15 +402,11 @@ class _ProductionBatchCard extends StatelessWidget {
     return Wrap(
       spacing: 8,
       children: nextStatuses.map((status) {
-        return ElevatedButton(
+        return CustomButton.small(
           onPressed: () => onStatusChanged(status.name),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: _getStatusColor(status),
-            foregroundColor: AppColors.textWhite,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            textStyle: const TextStyle(fontSize: 12),
-          ),
-          child: Text('Marcar como ${_statusToString(status)}'),
+          text: 'Marcar como ${_statusToString(status)}',
+          variant: _getButtonVariant(status),
+          isFullWidth: false,
         );
       }).toList(),
     );
@@ -465,6 +454,21 @@ class _ProductionBatchCard extends StatelessWidget {
         return AppColors.statusColhido;
       case ProductionStatus.cancelado:
         return AppColors.statusCancelado;
+    }
+  }
+
+  ButtonVariant _getButtonVariant(ProductionStatus status) {
+    switch (status) {
+      case ProductionStatus.planejado:
+        return ButtonVariant.primary;
+      case ProductionStatus.aguardandoInicio:
+        return ButtonVariant.outline;
+      case ProductionStatus.emProducao:
+        return ButtonVariant.success;
+      case ProductionStatus.colhido:
+        return ButtonVariant.secondary;
+      case ProductionStatus.cancelado:
+        return ButtonVariant.danger;
     }
   }
 

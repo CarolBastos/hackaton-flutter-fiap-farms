@@ -4,6 +4,7 @@ import '../domain/entities/product.dart';
 import '../presentation/controllers/product_controller.dart';
 import '../utils/app_colors.dart';
 import 'components/custom_app_bar.dart';
+import 'components/custom_button.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -177,36 +178,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     const SizedBox(height: 24),
 
                     // Botão Salvar
-                    ElevatedButton(
-                      onPressed: productController.isLoading
-                          ? null
-                          : _saveProduct,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.textWhite,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: productController.isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppColors.textWhite,
-                                ),
-                              ),
-                            )
-                          : const Text(
-                              'Cadastrar Produto',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                    CustomButton.large(
+                      onPressed: _saveProduct,
+                      text: 'Cadastrar Produto',
+                      variant: ButtonVariant.primary,
+                      isLoading: productController.isLoading,
                     ),
                     const SizedBox(height: 16),
 

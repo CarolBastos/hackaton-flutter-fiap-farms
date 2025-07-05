@@ -5,6 +5,7 @@ import '../presentation/controllers/production_controller.dart';
 import '../presentation/controllers/product_controller.dart';
 import '../utils/app_colors.dart';
 import 'components/custom_app_bar.dart';
+import 'components/custom_button.dart';
 
 class AddProductionScreen extends StatefulWidget {
   const AddProductionScreen({super.key});
@@ -158,33 +159,11 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
                     const SizedBox(height: 24),
 
                     // Botão Salvar
-                    ElevatedButton(
-                      onPressed: productionController.isLoading
-                          ? null
-                          : _saveProductionBatch,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.textWhite,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: productionController.isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppColors.textWhite,
-                                ),
-                              ),
-                            )
-                          : const Text(
-                              'Criar Lote de Produção',
-                              style: TextStyle(fontSize: 16),
-                            ),
+                    CustomButton.large(
+                      onPressed: _saveProductionBatch,
+                      text: 'Criar Lote de Produção',
+                      variant: ButtonVariant.primary,
+                      isLoading: productionController.isLoading,
                     ),
                   ],
                 ),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../presentation/controllers/auth_controller.dart';
 import '../routes.dart';
+import 'components/custom_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -77,34 +78,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   builder: (context, authController, child) {
                     return Column(
                       children: [
-                        ElevatedButton(
-                          onPressed: authController.isLoading
-                              ? null
-                              : () => _login(authController),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 15.0,
-                              horizontal: 80.0,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                            ),
-                          ),
-                          child: authController.isLoading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors.textWhite,
-                                    ),
-                                  ),
-                                )
-                              : const Text(
-                                  'Entrar',
-                                  style: TextStyle(fontSize: 18.0),
-                                ),
+                        CustomButton.large(
+                          onPressed: () => _login(authController),
+                          text: 'Entrar',
+                          variant: ButtonVariant.primary,
+                          isLoading: authController.isLoading,
+                          borderRadius: BorderRadius.circular(30.0),
                         ),
                         const SizedBox(height: 10.0),
                         // Error Message Display
