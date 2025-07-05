@@ -107,8 +107,8 @@ class _ProductionDashboardState extends State<ProductionDashboard> {
     final statuses = [
       {'name': 'Todos', 'value': ''},
       {'name': 'Planejado', 'value': 'planejado'},
-      {'name': 'Aguardando', 'value': 'aguardando_inicio'},
-      {'name': 'Em Produção', 'value': 'em_producao'},
+      {'name': 'Aguardando', 'value': 'aguardandoInicio'},
+      {'name': 'Em Produção', 'value': 'emProducao'},
       {'name': 'Colhido', 'value': 'colhido'},
     ];
 
@@ -427,9 +427,9 @@ class _ProductionBatchCard extends StatelessWidget {
     switch (status) {
       case ProductionStatus.planejado:
         return 'Planejado';
-      case ProductionStatus.aguardando_inicio:
+      case ProductionStatus.aguardandoInicio:
         return 'Aguardando Início';
-      case ProductionStatus.em_producao:
+      case ProductionStatus.emProducao:
         return 'Em Produção';
       case ProductionStatus.colhido:
         return 'Colhido';
@@ -441,10 +441,10 @@ class _ProductionBatchCard extends StatelessWidget {
   List<ProductionStatus> _getNextStatuses(ProductionStatus current) {
     switch (current) {
       case ProductionStatus.planejado:
-        return [ProductionStatus.aguardando_inicio];
-      case ProductionStatus.aguardando_inicio:
-        return [ProductionStatus.em_producao];
-      case ProductionStatus.em_producao:
+        return [ProductionStatus.aguardandoInicio];
+      case ProductionStatus.aguardandoInicio:
+        return [ProductionStatus.emProducao];
+      case ProductionStatus.emProducao:
         return [ProductionStatus.colhido];
       case ProductionStatus.colhido:
         return [];
@@ -457,9 +457,9 @@ class _ProductionBatchCard extends StatelessWidget {
     switch (status) {
       case ProductionStatus.planejado:
         return AppColors.statusPlanejado;
-      case ProductionStatus.aguardando_inicio:
+      case ProductionStatus.aguardandoInicio:
         return AppColors.statusAguardando;
-      case ProductionStatus.em_producao:
+      case ProductionStatus.emProducao:
         return AppColors.statusEmProducao;
       case ProductionStatus.colhido:
         return AppColors.statusColhido;

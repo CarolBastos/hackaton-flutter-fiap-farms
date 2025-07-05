@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum ProductionStatus {
   planejado,
-  aguardando_inicio,
-  em_producao,
+  aguardandoInicio,
+  emProducao,
   colhido,
   cancelado,
 }
@@ -68,10 +68,10 @@ class ProductionBatch {
     switch (status) {
       case 'planejado':
         return ProductionStatus.planejado;
-      case 'aguardando_inicio':
-        return ProductionStatus.aguardando_inicio;
-      case 'em_producao':
-        return ProductionStatus.em_producao;
+      case 'aguardandoInicio':
+        return ProductionStatus.aguardandoInicio;
+      case 'emProducao':
+        return ProductionStatus.emProducao;
       case 'colhido':
         return ProductionStatus.colhido;
       case 'cancelado':
@@ -85,9 +85,9 @@ class ProductionBatch {
     switch (status) {
       case ProductionStatus.planejado:
         return 'Planejado';
-      case ProductionStatus.aguardando_inicio:
+      case ProductionStatus.aguardandoInicio:
         return 'Aguardando Início';
-      case ProductionStatus.em_producao:
+      case ProductionStatus.emProducao:
         return 'Em Produção';
       case ProductionStatus.colhido:
         return 'Colhido';
@@ -100,9 +100,9 @@ class ProductionBatch {
     switch (status) {
       case ProductionStatus.planejado:
         return '📋';
-      case ProductionStatus.aguardando_inicio:
+      case ProductionStatus.aguardandoInicio:
         return '🟡';
-      case ProductionStatus.em_producao:
+      case ProductionStatus.emProducao:
         return '🌱';
       case ProductionStatus.colhido:
         return '🟢';

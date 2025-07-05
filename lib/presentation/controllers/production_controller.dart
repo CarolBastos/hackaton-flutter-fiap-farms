@@ -51,11 +51,11 @@ class ProductionController extends ChangeNotifier {
       .length;
 
   int get aguardandoCount => _productionBatches
-      .where((batch) => batch.status == ProductionStatus.aguardando_inicio)
+      .where((batch) => batch.status == ProductionStatus.aguardandoInicio)
       .length;
 
   int get emProducaoCount => _productionBatches
-      .where((batch) => batch.status == ProductionStatus.em_producao)
+      .where((batch) => batch.status == ProductionStatus.emProducao)
       .length;
 
   int get colhidoCount => _productionBatches
@@ -154,10 +154,10 @@ class ProductionController extends ChangeNotifier {
     switch (status) {
       case 'planejado':
         return ProductionStatus.planejado;
-      case 'aguardando_inicio':
-        return ProductionStatus.aguardando_inicio;
-      case 'em_producao':
-        return ProductionStatus.em_producao;
+      case 'aguardandoInicio':
+        return ProductionStatus.aguardandoInicio;
+      case 'emProducao':
+        return ProductionStatus.emProducao;
       case 'colhido':
         return ProductionStatus.colhido;
       case 'cancelado':
