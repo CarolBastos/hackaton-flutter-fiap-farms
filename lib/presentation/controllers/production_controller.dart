@@ -36,9 +36,19 @@ class ProductionController extends ChangeNotifier {
     if (_selectedStatusFilter.isEmpty) {
       return _productionBatches;
     }
-    return _productionBatches
-        .where((batch) => batch.status.name == _selectedStatusFilter)
-        .toList();
+    print('Filtro selecionado: $_selectedStatusFilter');
+    print('Total de lotes: ${_productionBatches.length}');
+
+    final filteredBatches = _productionBatches.where((batch) {
+      final matches = batch.status.name == _selectedStatusFilter;
+      print(
+        'Lote ${batch.productName}: status=${batch.status.name}, matches=$matches',
+      );
+      return matches;
+    }).toList();
+
+    print('Lotes filtrados: ${filteredBatches.length}');
+    return filteredBatches;
   }
 
   // Contadores por status
@@ -92,9 +102,7 @@ class ProductionController extends ChangeNotifier {
     _clearError();
 
     try {
-      _productionBatches = await _getProductionBatchesByStatusUseCase.execute(
-        status,
-      );
+      _productionBatches = await _getProductionBatchesUseCase.execute();
       _selectedStatusFilter = status;
       notifyListeners();
     } catch (e) {
@@ -133,9 +141,19 @@ class ProductionController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void clearStatusFilter() {
-    _selectedStatusFilter = '';
-    notifyListeners();
+  Future<void> clearStatusFilter() async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      _productionBatches = await _getProductionBatchesUseCase.execute();
+      _selectedStatusFilter = '';
+      notifyListeners();
+    } catch (e) {
+      _setError(e.toString());
+    } finally {
+      _setLoading(false);
+    }
   }
 
   ProductionStatus _parseStatus(String status) {

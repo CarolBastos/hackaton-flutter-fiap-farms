@@ -134,13 +134,12 @@ class _ProductionDashboardState extends State<ProductionDashboard> {
                 child: FilterChip(
                   label: Text(status['name']!),
                   selected: isSelected,
-                  onSelected: (selected) {
+                  onSelected: (selected) async {
                     if (selected) {
                       if (status['value']!.isEmpty) {
-                        controller.clearStatusFilter();
-                        controller.loadProductionBatches();
+                        await controller.clearStatusFilter();
                       } else {
-                        controller.loadProductionBatchesByStatus(
+                        await controller.loadProductionBatchesByStatus(
                           status['value']!,
                         );
                       }
