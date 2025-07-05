@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import 'components/user_header_widget.dart';
 import 'components/app_drawer.dart';
+import 'components/custom_app_bar.dart';
 import '../utils/app_colors.dart';
 import '../routes.dart';
 import '../presentation/controllers/product_controller.dart';
@@ -29,46 +30,54 @@ class _SalesDashboardState extends State<SalesDashboard> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ProductController>(context, listen: false).loadProducts();
       Provider.of<SalesController>(context, listen: false).loadSalesRecords();
-      Provider.of<InventoryController>(context, listen: false).loadInventoryItems();
+      Provider.of<InventoryController>(
+        context,
+        listen: false,
+      ).loadInventoryItems();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard de Vendas'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-      ),
+      appBar: DashboardAppBar(title: 'Dashboard de Vendas'),
       drawer: AppDrawer(currentRoute: Routes.dashboard),
       body: Consumer3<ProductController, SalesController, InventoryController>(
         builder: (context, productController, salesController, inventoryController, child) {
-          if (productController.isLoading || salesController.isLoading || inventoryController.isLoading) {
+          if (productController.isLoading ||
+              salesController.isLoading ||
+              inventoryController.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
           // Calcular indicadores reais
           final totalSales = salesController.salesRecords.fold<double>(
-            0.0, (sum, sale) => sum + sale.totalSaleAmount);
-          
+            0.0,
+            (sum, sale) => sum + sale.totalSaleAmount,
+          );
+
           final totalProfit = salesController.salesRecords.fold<double>(
-            0.0, (sum, sale) => sum + sale.calculatedProfit);
-          
+            0.0,
+            (sum, sale) => sum + sale.calculatedProfit,
+          );
+
           final orders = salesController.salesRecords.length;
-          
+
           // Calcular crescimento (comparar com período anterior)
           final now = DateTime.now();
           final currentPeriodSales = salesController.salesRecords
               .where((sale) => _isInPeriod(sale.saleDate, _selectedPeriod, now))
               .fold<double>(0.0, (sum, sale) => sum + sale.totalSaleAmount);
-          
+
           final previousPeriodSales = salesController.salesRecords
-              .where((sale) => _isInPreviousPeriod(sale.saleDate, _selectedPeriod, now))
+              .where(
+                (sale) =>
+                    _isInPreviousPeriod(sale.saleDate, _selectedPeriod, now),
+              )
               .fold<double>(0.0, (sum, sale) => sum + sale.totalSaleAmount);
-          
-          final growth = previousPeriodSales > 0 
-              ? (currentPeriodSales - previousPeriodSales) / previousPeriodSales 
+
+          final growth = previousPeriodSales > 0
+              ? (currentPeriodSales - previousPeriodSales) / previousPeriodSales
               : 0.0;
 
           // Criar lista de produtos com dados reais de lucro
@@ -76,10 +85,12 @@ class _SalesDashboardState extends State<SalesDashboard> {
             final productSales = salesController.salesRecords
                 .where((sale) => sale.productId == product.id)
                 .toList();
-            
+
             final totalProductProfit = productSales.fold<double>(
-              0.0, (sum, sale) => sum + sale.calculatedProfit);
-            
+              0.0,
+              (sum, sale) => sum + sale.calculatedProfit,
+            );
+
             return {'product': product, 'profit': totalProductProfit};
           }).toList();
 
@@ -332,7 +343,7 @@ class _SalesDashboardState extends State<SalesDashboard> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    previousPeriodSales > 0 
+                    previousPeriodSales > 0
                         ? 'O lucro ${growth >= 0 ? 'aumentou' : 'diminuiu'} ${(growth * 100).abs().toStringAsFixed(1)}% em relação ao período anterior.'
                         : 'Não há dados suficientes para comparação.',
                     style: const TextStyle(fontSize: 16),
@@ -349,14 +360,14 @@ class _SalesDashboardState extends State<SalesDashboard> {
   bool _isInPeriod(DateTime date, String period, DateTime now) {
     switch (period) {
       case 'Dia':
-        return date.year == now.year && 
-               date.month == now.month && 
-               date.day == now.day;
+        return date.year == now.year &&
+            date.month == now.month &&
+            date.day == now.day;
       case 'Semana':
         final weekStart = now.subtract(Duration(days: now.weekday - 1));
         final weekEnd = weekStart.add(const Duration(days: 6));
-        return date.isAfter(weekStart.subtract(const Duration(days: 1))) && 
-               date.isBefore(weekEnd.add(const Duration(days: 1)));
+        return date.isAfter(weekStart.subtract(const Duration(days: 1))) &&
+            date.isBefore(weekEnd.add(const Duration(days: 1)));
       case 'Mês':
         return date.year == now.year && date.month == now.month;
       case 'Ano':
@@ -370,14 +381,14 @@ class _SalesDashboardState extends State<SalesDashboard> {
     switch (period) {
       case 'Dia':
         final yesterday = now.subtract(const Duration(days: 1));
-        return date.year == yesterday.year && 
-               date.month == yesterday.month && 
-               date.day == yesterday.day;
+        return date.year == yesterday.year &&
+            date.month == yesterday.month &&
+            date.day == yesterday.day;
       case 'Semana':
         final lastWeekStart = now.subtract(Duration(days: now.weekday + 6));
         final lastWeekEnd = lastWeekStart.add(const Duration(days: 6));
-        return date.isAfter(lastWeekStart.subtract(const Duration(days: 1))) && 
-               date.isBefore(lastWeekEnd.add(const Duration(days: 1)));
+        return date.isAfter(lastWeekStart.subtract(const Duration(days: 1))) &&
+            date.isBefore(lastWeekEnd.add(const Duration(days: 1)));
       case 'Mês':
         final lastMonth = DateTime(now.year, now.month - 1);
         return date.year == lastMonth.year && date.month == lastMonth.month;

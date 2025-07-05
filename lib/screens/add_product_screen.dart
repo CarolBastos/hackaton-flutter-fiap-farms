@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../domain/entities/product.dart';
 import '../presentation/controllers/product_controller.dart';
 import '../utils/app_colors.dart';
+import 'components/custom_app_bar.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -42,11 +43,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cadastrar Produto'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-      ),
+      appBar: FormAppBar(title: 'Cadastrar Produto'),
       body: Consumer<ProductController>(
         builder: (context, productController, child) {
           return Padding(

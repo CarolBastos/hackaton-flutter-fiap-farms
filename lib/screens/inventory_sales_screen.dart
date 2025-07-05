@@ -8,6 +8,7 @@ import '../utils/app_colors.dart';
 import '../routes.dart';
 import 'components/user_header_widget.dart';
 import 'components/app_drawer.dart';
+import 'components/custom_app_bar.dart';
 
 class InventorySalesScreen extends StatefulWidget {
   const InventorySalesScreen({super.key});
@@ -44,21 +45,14 @@ class _InventorySalesScreenState extends State<InventorySalesScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Controle de Estoque e Vendas'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          tabs: const [
-            Tab(icon: Icon(Icons.inventory), text: 'Estoque'),
-            Tab(icon: Icon(Icons.shopping_cart), text: 'Vendas'),
-            Tab(icon: Icon(Icons.history), text: 'Histórico'),
-          ],
-        ),
+      appBar: TabAppBar(
+        title: 'Controle de Estoque e Vendas',
+        tabController: _tabController,
+        tabs: const [
+          Tab(icon: Icon(Icons.inventory), text: 'Estoque'),
+          Tab(icon: Icon(Icons.shopping_cart), text: 'Vendas'),
+          Tab(icon: Icon(Icons.history), text: 'Histórico'),
+        ],
       ),
       drawer: AppDrawer(currentRoute: Routes.inventorySales),
       body: TabBarView(

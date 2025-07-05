@@ -5,6 +5,7 @@ import '../presentation/controllers/production_controller.dart';
 import '../presentation/controllers/product_controller.dart';
 import '../utils/app_colors.dart';
 import '../routes.dart';
+import 'components/custom_app_bar.dart';
 
 class AddProductionScreen extends StatefulWidget {
   const AddProductionScreen({super.key});
@@ -36,10 +37,8 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Novo Lote de Produção'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+      appBar: FormAppBar(
+        title: 'Novo Lote de Produção',
       ),
       body: Consumer2<ProductionController, ProductController>(
         builder: (context, productionController, productController, child) {

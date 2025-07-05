@@ -5,6 +5,7 @@ import '../presentation/controllers/production_controller.dart';
 import '../utils/app_colors.dart';
 import '../routes.dart';
 import 'components/app_drawer.dart';
+import 'components/custom_app_bar.dart';
 
 class ProductionDashboard extends StatefulWidget {
   const ProductionDashboard({super.key});
@@ -28,11 +29,7 @@ class _ProductionDashboardState extends State<ProductionDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard de Produção'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-      ),
+      appBar: DashboardAppBar(title: 'Dashboard de Produção'),
       drawer: AppDrawer(currentRoute: Routes.productionDashboard),
       body: Consumer<ProductionController>(
         builder: (context, productionController, child) {
