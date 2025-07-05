@@ -32,15 +32,6 @@ class _ProductionDashboardState extends State<ProductionDashboard> {
         title: const Text('Dashboard de Produção'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.pushNamed(context, Routes.addProduction);
-            },
-            tooltip: 'Adicionar Lote',
-          ),
-        ],
       ),
       drawer: AppDrawer(currentRoute: Routes.productionDashboard),
       body: Consumer<ProductionController>(
@@ -187,9 +178,30 @@ class _ProductionDashboardState extends State<ProductionDashboard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Lotes de Produção (${batches.length})',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Lotes de Produção (${batches.length})',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, Routes.addProduction);
+              },
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Adicionar Lote'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         ListView.builder(
