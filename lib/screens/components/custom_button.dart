@@ -1,10 +1,65 @@
-import 'package:fiap_farms/utils/app_colors.dart';
 import 'package:flutter/material.dart';
+import '../../utils/app_colors.dart';
 
 enum ButtonVariant { primary, secondary, danger, success, outline, text }
 
 enum ButtonSize { small, medium, large }
 
+/// Botão personalizado com múltiplas variantes e tamanhos
+///
+/// ## Uso básico:
+/// ```dart
+/// CustomButton(
+///   onPressed: () => print('Clicou!'),
+///   text: 'Salvar',
+/// )
+/// ```
+///
+/// ## Com ícone:
+/// ```dart
+/// CustomButton(
+///   onPressed: () => print('Clicou!'),
+///   text: 'Adicionar',
+///   icon: Icons.add,
+///   variant: ButtonVariant.success,
+/// )
+/// ```
+///
+/// ## Com loading:
+/// ```dart
+/// CustomButton(
+///   onPressed: _saveData,
+///   text: 'Salvando...',
+///   isLoading: true,
+/// )
+/// ```
+///
+/// ## Botão pequeno:
+/// ```dart
+/// CustomButton.small(
+///   onPressed: () => print('Clicou!'),
+///   text: 'Editar',
+///   variant: ButtonVariant.outline,
+/// )
+/// ```
+///
+/// ## Botão grande:
+/// ```dart
+/// CustomButton.large(
+///   onPressed: () => print('Clicou!'),
+///   text: 'Confirmar',
+///   variant: ButtonVariant.primary,
+/// )
+/// ```
+///
+/// ## Botão apenas ícone:
+/// ```dart
+/// CustomButton.icon(
+///   onPressed: () => print('Clicou!'),
+///   icon: Icons.delete,
+///   variant: ButtonVariant.danger,
+/// )
+/// ```
 class CustomButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String text;
