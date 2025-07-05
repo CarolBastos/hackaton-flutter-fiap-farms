@@ -116,14 +116,6 @@ class AppDrawer extends StatelessWidget {
             _showFeatureInDevelopment(context, 'Metas e Notificações');
           },
         ),
-        ListTile(
-          leading: const Icon(Icons.analytics, color: AppColors.primary),
-          title: const Text('Relatórios'),
-          onTap: () {
-            Navigator.pop(context);
-            _showFeatureInDevelopment(context, 'Relatórios');
-          },
-        ),
       ],
     );
   }

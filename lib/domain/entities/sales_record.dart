@@ -47,10 +47,10 @@ class SalesRecord {
       totalSaleAmount: _parseDouble(data['totalSaleAmount']),
       estimatedCostAtSale: _parseDouble(data['estimatedCostAtSale']),
       calculatedProfit: _parseDouble(data['calculatedProfit']),
-      saleDate: (data['saleDate'] as Timestamp).toDate(),
+      saleDate: _parseDateTime(data['saleDate']),
       clientInfo: data['clientInfo'],
       notes: data['notes'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: _parseDateTime(data['createdAt']),
       createdBy: data['createdBy'] ?? '',
     );
   }
@@ -120,5 +120,22 @@ class SalesRecord {
     }
 
     return 0.0;
+  }
+
+  static DateTime _parseDateTime(dynamic value) {
+    if (value == null) return DateTime.now();
+
+    if (value is DateTime) return value;
+    if (value is Timestamp) return value.toDate();
+    if (value is String) {
+      try {
+        return DateTime.parse(value);
+      } catch (e) {
+        print('SalesRecord._parseDateTime: Erro ao processar data: $e');
+        return DateTime.now();
+      }
+    }
+
+    return DateTime.now();
   }
 }

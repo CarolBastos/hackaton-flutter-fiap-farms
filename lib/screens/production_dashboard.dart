@@ -4,7 +4,6 @@ import '../domain/entities/production_batch.dart';
 import '../presentation/controllers/production_controller.dart';
 import '../utils/app_colors.dart';
 import '../routes.dart';
-import 'components/user_header_widget.dart';
 import 'components/app_drawer.dart';
 
 class ProductionDashboard extends StatefulWidget {
@@ -55,7 +54,6 @@ class _ProductionDashboardState extends State<ProductionDashboard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const UserHeader(),
                 const SizedBox(height: 16),
 
                 // Cards de Status

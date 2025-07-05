@@ -6,7 +6,11 @@ import 'components/app_drawer.dart';
 import '../utils/app_colors.dart';
 import '../routes.dart';
 import '../presentation/controllers/product_controller.dart';
+import '../presentation/controllers/sales_controller.dart';
+import '../presentation/controllers/inventory_controller.dart';
 import '../domain/entities/product.dart';
+import '../domain/entities/sales_record.dart';
+import '../domain/entities/inventory_item.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -19,23 +23,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _selectedPeriod = 'Mês';
   final List<String> _periods = ['Dia', 'Semana', 'Mês', 'Ano'];
 
-  // Mock de indicadores (mantidos temporariamente)
-  final double _totalSales = 42000.0;
-  final double _totalProfit = 32000.0;
-  final int _orders = 150;
-  final double _growth = 0.12; // 12% crescimento
-
-  // Mock para comparação entre períodos (mantidos temporariamente)
-  final Map<String, double> _profitComparison = {
-    'Anterior': 28000.0,
-    'Atual': 32000.0,
-  };
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ProductController>(context, listen: false).loadProducts();
+      Provider.of<SalesController>(context, listen: false).loadSalesRecords();
+      Provider.of<InventoryController>(context, listen: false).loadInventoryItems();
     });
   }
 
@@ -48,18 +42,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
         foregroundColor: Colors.white,
       ),
       drawer: AppDrawer(currentRoute: Routes.dashboard),
-      body: Consumer<ProductController>(
-        builder: (context, productController, child) {
-          if (productController.isLoading) {
+      body: Consumer3<ProductController, SalesController, InventoryController>(
+        builder: (context, productController, salesController, inventoryController, child) {
+          if (productController.isLoading || salesController.isLoading || inventoryController.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // Criar lista de produtos com dados simulados de lucro para o gráfico
+          // Calcular indicadores reais
+          final totalSales = salesController.salesRecords.fold<double>(
+            0.0, (sum, sale) => sum + sale.totalSaleAmount);
+          
+          final totalProfit = salesController.salesRecords.fold<double>(
+            0.0, (sum, sale) => sum + sale.calculatedProfit);
+          
+          final orders = salesController.salesRecords.length;
+          
+          // Calcular crescimento (comparar com período anterior)
+          final now = DateTime.now();
+          final currentPeriodSales = salesController.salesRecords
+              .where((sale) => _isInPeriod(sale.saleDate, _selectedPeriod, now))
+              .fold<double>(0.0, (sum, sale) => sum + sale.totalSaleAmount);
+          
+          final previousPeriodSales = salesController.salesRecords
+              .where((sale) => _isInPreviousPeriod(sale.saleDate, _selectedPeriod, now))
+              .fold<double>(0.0, (sum, sale) => sum + sale.totalSaleAmount);
+          
+          final growth = previousPeriodSales > 0 
+              ? (currentPeriodSales - previousPeriodSales) / previousPeriodSales 
+              : 0.0;
+
+          // Criar lista de produtos com dados reais de lucro
           final productsWithProfit = productController.products.map((product) {
-            // Simular lucro baseado no custo estimado (para demonstração)
-            final simulatedProfit =
-                product.estimatedCostPerUnit * 2.5; // 150% de margem
-            return {'product': product, 'profit': simulatedProfit};
+            final productSales = salesController.salesRecords
+                .where((sale) => sale.productId == product.id)
+                .toList();
+            
+            final totalProductProfit = productSales.fold<double>(
+              0.0, (sum, sale) => sum + sale.calculatedProfit);
+            
+            return {'product': product, 'profit': totalProductProfit};
           }).toList();
 
           // Ordenar por lucro
@@ -108,22 +129,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       _IndicatorCard(
                         title: 'Vendas',
-                        value: 'R\$ ${_totalSales.toStringAsFixed(2)}',
+                        value: 'R\$ ${totalSales.toStringAsFixed(2)}',
                         icon: Icons.shopping_cart,
                       ),
                       _IndicatorCard(
                         title: 'Lucro',
-                        value: 'R\$ ${_totalProfit.toStringAsFixed(2)}',
+                        value: 'R\$ ${totalProfit.toStringAsFixed(2)}',
                         icon: Icons.attach_money,
                       ),
                       _IndicatorCard(
                         title: 'Pedidos',
-                        value: '$_orders',
+                        value: '$orders',
                         icon: Icons.receipt_long,
                       ),
                       _IndicatorCard(
                         title: 'Crescimento',
-                        value: '${(_growth * 100).toStringAsFixed(1)}%',
+                        value: '${(growth * 100).toStringAsFixed(1)}%',
                         icon: Icons.trending_up,
                       ),
                     ],
@@ -296,11 +317,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       _ComparisonCard(
                         label: 'Período Anterior',
-                        value: _profitComparison['Anterior']!,
+                        value: previousPeriodSales,
                       ),
                       _ComparisonCard(
                         label: 'Período Atual',
-                        value: _profitComparison['Atual']!,
+                        value: currentPeriodSales,
                       ),
                     ],
                   ),
@@ -311,7 +332,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'O lucro aumentou ${(100 * (_profitComparison['Atual']! - _profitComparison['Anterior']!) / _profitComparison['Anterior']!).toStringAsFixed(1)}% em relação ao período anterior.',
+                    previousPeriodSales > 0 
+                        ? 'O lucro ${growth >= 0 ? 'aumentou' : 'diminuiu'} ${(growth * 100).abs().toStringAsFixed(1)}% em relação ao período anterior.'
+                        : 'Não há dados suficientes para comparação.',
                     style: const TextStyle(fontSize: 16),
                   ),
                 ],
@@ -321,6 +344,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
         },
       ),
     );
+  }
+
+  bool _isInPeriod(DateTime date, String period, DateTime now) {
+    switch (period) {
+      case 'Dia':
+        return date.year == now.year && 
+               date.month == now.month && 
+               date.day == now.day;
+      case 'Semana':
+        final weekStart = now.subtract(Duration(days: now.weekday - 1));
+        final weekEnd = weekStart.add(const Duration(days: 6));
+        return date.isAfter(weekStart.subtract(const Duration(days: 1))) && 
+               date.isBefore(weekEnd.add(const Duration(days: 1)));
+      case 'Mês':
+        return date.year == now.year && date.month == now.month;
+      case 'Ano':
+        return date.year == now.year;
+      default:
+        return false;
+    }
+  }
+
+  bool _isInPreviousPeriod(DateTime date, String period, DateTime now) {
+    switch (period) {
+      case 'Dia':
+        final yesterday = now.subtract(const Duration(days: 1));
+        return date.year == yesterday.year && 
+               date.month == yesterday.month && 
+               date.day == yesterday.day;
+      case 'Semana':
+        final lastWeekStart = now.subtract(Duration(days: now.weekday + 6));
+        final lastWeekEnd = lastWeekStart.add(const Duration(days: 6));
+        return date.isAfter(lastWeekStart.subtract(const Duration(days: 1))) && 
+               date.isBefore(lastWeekEnd.add(const Duration(days: 1)));
+      case 'Mês':
+        final lastMonth = DateTime(now.year, now.month - 1);
+        return date.year == lastMonth.year && date.month == lastMonth.month;
+      case 'Ano':
+        return date.year == now.year - 1;
+      default:
+        return false;
+    }
   }
 }
 

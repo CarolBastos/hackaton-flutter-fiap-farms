@@ -26,26 +26,6 @@ class Product {
   factory Product.fromFirestore(Map<String, dynamic> data, String id) {
     print('Product.fromFirestore: Processando dados: $data');
 
-    DateTime createdAt;
-    try {
-      if (data['createdAt'] != null) {
-        createdAt = (data['createdAt'] as Timestamp).toDate();
-      } else {
-        createdAt = DateTime.now();
-      }
-    } catch (e) {
-      print('Product.fromFirestore: Erro ao processar createdAt: $e');
-      createdAt = DateTime.now();
-    }
-
-    bool isActive;
-    try {
-      isActive = data['isActive'] ?? true;
-    } catch (e) {
-      print('Product.fromFirestore: Erro ao processar isActive: $e');
-      isActive = true;
-    }
-
     return Product(
       id: id,
       name: data['name'] ?? '',
@@ -53,9 +33,9 @@ class Product {
       category: data['category'] ?? '',
       unitOfMeasure: data['unitOfMeasure'] ?? '',
       estimatedCostPerUnit: _parseDouble(data['estimatedCostPerUnit']),
-      createdAt: createdAt,
+      createdAt: _parseDateTime(data['createdAt']),
       createdBy: data['createdBy'] ?? '',
-      isActive: isActive,
+      isActive: data['isActive'] ?? true,
     );
   }
 
@@ -106,5 +86,22 @@ class Product {
     }
 
     return 0.0;
+  }
+
+  static DateTime _parseDateTime(dynamic value) {
+    if (value == null) return DateTime.now();
+
+    if (value is DateTime) return value;
+    if (value is Timestamp) return value.toDate();
+    if (value is String) {
+      try {
+        return DateTime.parse(value);
+      } catch (e) {
+        print('Product._parseDateTime: Erro ao processar data: $e');
+        return DateTime.now();
+      }
+    }
+
+    return DateTime.now();
   }
 }

@@ -32,7 +32,7 @@ class InventoryItem {
       availableQuantity: _parseDouble(data['availableQuantity']),
       unitOfMeasure: data['unitOfMeasure'] ?? '',
       estimatedCostPerUnit: _parseDouble(data['estimatedCostPerUnit']),
-      lastUpdated: (data['lastUpdated'] as Timestamp).toDate(),
+      lastUpdated: _parseDateTime(data['lastUpdated']),
       createdBy: data['createdBy'] ?? '',
     );
   }
@@ -84,5 +84,22 @@ class InventoryItem {
     }
 
     return 0.0;
+  }
+
+  static DateTime _parseDateTime(dynamic value) {
+    if (value == null) return DateTime.now();
+
+    if (value is DateTime) return value;
+    if (value is Timestamp) return value.toDate();
+    if (value is String) {
+      try {
+        return DateTime.parse(value);
+      } catch (e) {
+        print('InventoryItem._parseDateTime: Erro ao processar data: $e');
+        return DateTime.now();
+      }
+    }
+
+    return DateTime.now();
   }
 }

@@ -47,10 +47,10 @@ class ProductionBatch {
       productId: data['productId'] ?? '',
       productName: data['productName'] ?? '',
       farmId: data['farmId'],
-      startDate: (data['startDate'] as Timestamp).toDate(),
-      estimatedEndDate: (data['estimatedEndDate'] as Timestamp).toDate(),
+      startDate: _parseDateTime(data['startDate']),
+      estimatedEndDate: _parseDateTime(data['estimatedEndDate']),
       actualHarvestDate: data['actualHarvestDate'] != null
-          ? (data['actualHarvestDate'] as Timestamp).toDate()
+          ? _parseDateTime(data['actualHarvestDate'])
           : null,
       status: _parseStatus(data['status'] ?? 'planejado'),
       estimatedQuantity: _parseDouble(data['estimatedQuantity']),
@@ -58,9 +58,9 @@ class ProductionBatch {
           ? _parseDouble(data['actualQuantity'])
           : null,
       notes: data['notes'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: _parseDateTime(data['createdAt']),
       createdBy: data['createdBy'] ?? '',
-      lastUpdatedAt: (data['lastUpdatedAt'] as Timestamp).toDate(),
+      lastUpdatedAt: _parseDateTime(data['lastUpdatedAt']),
     );
   }
 
@@ -175,5 +175,22 @@ class ProductionBatch {
     }
 
     return 0.0;
+  }
+
+  static DateTime _parseDateTime(dynamic value) {
+    if (value == null) return DateTime.now();
+
+    if (value is DateTime) return value;
+    if (value is Timestamp) return value.toDate();
+    if (value is String) {
+      try {
+        return DateTime.parse(value);
+      } catch (e) {
+        print('ProductionBatch._parseDateTime: Erro ao processar data: $e');
+        return DateTime.now();
+      }
+    }
+
+    return DateTime.now();
   }
 }
