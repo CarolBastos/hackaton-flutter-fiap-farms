@@ -5,6 +5,7 @@ import '../presentation/controllers/inventory_controller.dart';
 import '../presentation/controllers/product_controller.dart';
 import '../domain/entities/sales_record.dart';
 import '../utils/app_colors.dart';
+import '../utils/date_formatter.dart';
 import '../routes.dart';
 import 'components/menu_drawer.dart';
 import 'components/custom_app_bar.dart';
@@ -170,7 +171,7 @@ class _InventoryTab extends StatelessWidget {
                                             'Disponível: ${item.availableQuantity} ${item.unitOfMeasure}',
                                             style: const TextStyle(
                                               fontSize: 14,
-                                              color: AppColors.success,
+                                              color: AppColors.primary,
                                             ),
                                           ),
                                           if (item.soldQuantity > 0)
@@ -326,7 +327,7 @@ class _InventoryTab extends StatelessWidget {
                 'Valor total vendido: R\$ ${(item.soldQuantity * item.estimatedCostPerUnit).toStringAsFixed(2)}',
               ),
             Text(
-              'Última atualização: ${item.lastUpdated.toString().substring(0, 16)}',
+              'Última atualização: ${DateFormatter.formatDateTime(item.lastUpdated)}',
             ),
           ],
         ),
@@ -427,7 +428,7 @@ class _SalesTab extends StatelessWidget {
                                 ),
                               ),
                               subtitle: Text(
-                                '${sale.quantitySold} ${sale.unitOfMeasure} • ${sale.saleDate.toString().substring(0, 16)}',
+                                '${sale.quantitySold} ${sale.unitOfMeasure} • ${DateFormatter.formatDateTime(sale.saleDate)}',
                               ),
                               trailing: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -494,7 +495,7 @@ class _SalesTab extends StatelessWidget {
             ),
             Text('Lucro: R\$ ${sale.calculatedProfit.toStringAsFixed(2)}'),
             if (sale.clientInfo != null) Text('Cliente: ${sale.clientInfo}'),
-            Text('Data: ${sale.saleDate.toString().substring(0, 16)}'),
+            Text('Data: ${DateFormatter.formatDateTime(sale.saleDate)}'),
           ],
         ),
         actions: [
@@ -770,7 +771,7 @@ class _HistoryTab extends StatelessWidget {
                                 ),
                               ),
                               subtitle: Text(
-                                '${sale.quantitySold} ${sale.unitOfMeasure} • ${sale.saleDate.toString().substring(0, 16)}',
+                                '${sale.quantitySold} ${sale.unitOfMeasure} • ${DateFormatter.formatDateTime(sale.saleDate)}',
                               ),
                               trailing: Text(
                                 'R\$ ${sale.totalSaleAmount.toStringAsFixed(2)}',
