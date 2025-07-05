@@ -165,7 +165,7 @@ class _SalesDashboardState extends State<SalesDashboard> {
                         icon: Icons.attach_money,
                       ),
                       _IndicatorCard(
-                        title: 'Pedidos',
+                        title: 'Quantidade de Vendas',
                         value: '$orders',
                         icon: Icons.receipt_long,
                       ),
