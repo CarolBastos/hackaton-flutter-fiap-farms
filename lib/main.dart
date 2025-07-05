@@ -1,4 +1,4 @@
-import 'package:fiap_farms/screens/dashboard.dart';
+import 'package:fiap_farms/screens/sales_dashboard.dart';
 import 'package:fiap_farms/screens/login_screen.dart';
 import 'package:fiap_farms/screens/add_product_screen.dart';
 import 'package:fiap_farms/screens/production_dashboard.dart';
@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
       title: 'FIAP Farms',
       initialRoute: Routes.login,
       routes: {
-        Routes.dashboard: (context) => DashboardScreen(),
+        Routes.dashboard: (context) => SalesDashboard(),
         Routes.login: (context) => const LoginScreen(),
         Routes.addProduct: (context) => const AddProductScreen(),
         Routes.productionDashboard: (context) => const ProductionDashboard(),

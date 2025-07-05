@@ -12,14 +12,14 @@ import '../domain/entities/product.dart';
 import '../domain/entities/sales_record.dart';
 import '../domain/entities/inventory_item.dart';
 
-class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+class SalesDashboard extends StatefulWidget {
+  const SalesDashboard({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  State<SalesDashboard> createState() => _SalesDashboardState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _SalesDashboardState extends State<SalesDashboard> {
   String _selectedPeriod = 'Mês';
   final List<String> _periods = ['Dia', 'Semana', 'Mês', 'Ano'];
 

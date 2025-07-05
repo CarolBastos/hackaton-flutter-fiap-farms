@@ -23,7 +23,7 @@ lib/
 │   └── dependency_injection.dart
 └── screens/                 # Widgets da UI
     ├── login_screen.dart
-    └── dashboard.dart
+    └── sales_dashboard.dart
 ```
 
 ## Camadas
