@@ -132,51 +132,94 @@ class _InventoryTab extends StatelessWidget {
                               inventoryController.inventoryItems[index];
                           return Card(
                             margin: const EdgeInsets.only(bottom: 8),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: AppColors.primary,
-                                child: Text(
-                                  '${index + 1}',
-                                  style: const TextStyle(
-                                    color: AppColors.textWhite,
-                                  ),
-                                ),
-                              ),
-                              title: Text(
-                                item.productName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Text(
-                                '${item.availableQuantity} ${item.unitOfMeasure}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                              trailing: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                            child: InkWell(
+                              onTap: () {
+                                _showInventoryItemDetails(context, item);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Row(
                                 children: [
-                                  Text(
-                                    'R\$ ${item.estimatedCostPerUnit.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.success,
+                                  // Ícone e número
+                                  CircleAvatar(
+                                    backgroundColor: AppColors.primary,
+                                    child: Text(
+                                      '${index + 1}',
+                                      style: const TextStyle(
+                                        color: AppColors.textWhite,
+                                      ),
                                     ),
                                   ),
-                                  Text(
-                                    'por ${item.unitOfMeasure}',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: AppColors.textLight,
+                                  const SizedBox(width: 12),
+                                  // Informações principais
+                                  Expanded(
+                                    flex: 3,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.productName,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Disponível: ${item.availableQuantity} ${item.unitOfMeasure}',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.success,
+                                          ),
+                                        ),
+                                        if (item.soldQuantity > 0)
+                                          Text(
+                                            'Vendido: ${item.soldQuantity} ${item.unitOfMeasure}',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  // Preço e custo
+                                  Expanded(
+                                    flex: 2,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'R\$ ${item.estimatedCostPerUnit.toStringAsFixed(2)}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.success,
+                                          ),
+                                        ),
+                                        Text(
+                                          'por ${item.unitOfMeasure}',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.textLight,
+                                          ),
+                                        ),
+                                        if (item.soldQuantity > 0)
+                                          Text(
+                                            'Total vendido: R\$ ${(item.soldQuantity * item.estimatedCostPerUnit).toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: AppColors.primary,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
-                              onTap: () {
-                                _showInventoryItemDetails(context, item);
-                              },
                             ),
-                          );
+                          ),
+                        );
                         },
                       ),
               ),
@@ -263,13 +306,19 @@ class _InventoryTab extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Quantidade: ${item.availableQuantity} ${item.unitOfMeasure}'),
+            Text('Quantidade disponível: ${item.availableQuantity} ${item.unitOfMeasure}'),
+            if (item.soldQuantity > 0)
+              Text('Quantidade vendida: ${item.soldQuantity} ${item.unitOfMeasure}'),
             Text(
               'Custo por unidade: R\$ ${item.estimatedCostPerUnit.toStringAsFixed(2)}',
             ),
             Text(
-              'Valor total: R\$ ${(item.availableQuantity * item.estimatedCostPerUnit).toStringAsFixed(2)}',
+              'Valor total em estoque: R\$ ${(item.availableQuantity * item.estimatedCostPerUnit).toStringAsFixed(2)}',
             ),
+            if (item.soldQuantity > 0)
+              Text(
+                'Valor total vendido: R\$ ${(item.soldQuantity * item.estimatedCostPerUnit).toStringAsFixed(2)}',
+              ),
             Text(
               'Última atualização: ${item.lastUpdated.toString().substring(0, 16)}',
             ),
@@ -476,7 +525,7 @@ class _SalesTab extends StatelessWidget {
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (selectedProductId != null &&
                   quantityController.text.isNotEmpty &&
                   priceController.text.isNotEmpty) {
@@ -512,6 +561,13 @@ class _SalesTab extends StatelessWidget {
                     createdBy: '',
                   );
 
+                  // Primeiro processa a venda no estoque
+                  await Provider.of<InventoryController>(
+                    context,
+                    listen: false,
+                  ).processSale(selectedProductId!, quantity);
+                  
+                  // Depois registra a venda
                   Provider.of<SalesController>(
                     context,
                     listen: false,

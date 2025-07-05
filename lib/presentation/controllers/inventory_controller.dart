@@ -119,6 +119,54 @@ class InventoryController extends ChangeNotifier {
     }
   }
 
+  /// Processa uma venda, subtraindo do estoque disponível e adicionando à quantidade vendida
+  Future<void> processSale(String productId, double quantity) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      // Primeiro, verifica se há estoque suficiente
+      final inventoryItem = await getInventoryItemByProductId(productId);
+      if (inventoryItem == null) {
+        throw Exception('Produto não encontrado no estoque');
+      }
+
+      if (inventoryItem.availableQuantity < quantity) {
+        throw Exception(
+          'Estoque insuficiente. Disponível: ${inventoryItem.availableQuantity} ${inventoryItem.unitOfMeasure}',
+        );
+      }
+
+      // Calcula as novas quantidades
+      final newAvailableQuantity = inventoryItem.availableQuantity - quantity;
+      final newSoldQuantity = inventoryItem.soldQuantity + quantity;
+
+      // Atualiza o item com as novas quantidades
+      final updatedItem = inventoryItem.copyWith(
+        availableQuantity: newAvailableQuantity,
+        soldQuantity: newSoldQuantity,
+        lastUpdated: DateTime.now(),
+      );
+
+      // Salva as mudanças no banco de dados
+      await _updateInventoryItemUseCase.execute(updatedItem);
+
+      // Atualiza a lista local
+      final index = _inventoryItems.indexWhere(
+        (item) => item.id == updatedItem.id,
+      );
+      if (index != -1) {
+        _inventoryItems[index] = updatedItem;
+      }
+
+      notifyListeners();
+    } catch (e) {
+      _setError(e.toString());
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();

@@ -6,6 +6,7 @@ class InventoryItem {
   final String productName;
   final String? productionBatchId;
   final double availableQuantity;
+  final double soldQuantity;
   final String unitOfMeasure;
   final double estimatedCostPerUnit;
   final DateTime lastUpdated;
@@ -17,6 +18,7 @@ class InventoryItem {
     required this.productName,
     this.productionBatchId,
     required this.availableQuantity,
+    this.soldQuantity = 0.0,
     required this.unitOfMeasure,
     required this.estimatedCostPerUnit,
     required this.lastUpdated,
@@ -30,6 +32,7 @@ class InventoryItem {
       productName: data['productName'] ?? '',
       productionBatchId: data['productionBatchId'],
       availableQuantity: _parseDouble(data['availableQuantity']),
+      soldQuantity: _parseDouble(data['soldQuantity']),
       unitOfMeasure: data['unitOfMeasure'] ?? '',
       estimatedCostPerUnit: _parseDouble(data['estimatedCostPerUnit']),
       lastUpdated: _parseDateTime(data['lastUpdated']),
@@ -43,6 +46,7 @@ class InventoryItem {
       'productName': productName,
       'productionBatchId': productionBatchId,
       'availableQuantity': availableQuantity.toDouble(),
+      'soldQuantity': soldQuantity.toDouble(),
       'unitOfMeasure': unitOfMeasure,
       'estimatedCostPerUnit': estimatedCostPerUnit.toDouble(),
       'lastUpdated': Timestamp.fromDate(lastUpdated),
@@ -56,6 +60,7 @@ class InventoryItem {
     String? productName,
     String? productionBatchId,
     double? availableQuantity,
+    double? soldQuantity,
     String? unitOfMeasure,
     double? estimatedCostPerUnit,
     DateTime? lastUpdated,
@@ -67,6 +72,7 @@ class InventoryItem {
       productName: productName ?? this.productName,
       productionBatchId: productionBatchId ?? this.productionBatchId,
       availableQuantity: availableQuantity ?? this.availableQuantity,
+      soldQuantity: soldQuantity ?? this.soldQuantity,
       unitOfMeasure: unitOfMeasure ?? this.unitOfMeasure,
       estimatedCostPerUnit: estimatedCostPerUnit ?? this.estimatedCostPerUnit,
       lastUpdated: lastUpdated ?? this.lastUpdated,
