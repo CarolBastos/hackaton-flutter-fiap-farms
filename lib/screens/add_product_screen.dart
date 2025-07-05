@@ -5,6 +5,7 @@ import '../presentation/controllers/product_controller.dart';
 import '../utils/app_colors.dart';
 import 'components/custom_app_bar.dart';
 import 'components/custom_button.dart';
+import 'components/custom_text_field.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -56,13 +57,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Nome do Produto
-                    TextFormField(
+                    CustomTextField(
                       controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Nome do Produto *',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.inventory),
-                      ),
+                      labelText: 'Nome do Produto',
+                      hintText: 'Digite o nome do produto',
+                      prefixIcon: Icons.inventory,
+                      isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Nome do produto é obrigatório';
@@ -73,13 +73,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     const SizedBox(height: 16),
 
                     // Descrição
-                    TextFormField(
+                    CustomTextField(
                       controller: _descriptionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Descrição',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.description),
-                      ),
+                      labelText: 'Descrição',
+                      hintText: 'Digite a descrição do produto',
+                      prefixIcon: Icons.description,
                       maxLines: 3,
                     ),
                     const SizedBox(height: 16),
@@ -138,15 +136,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     const SizedBox(height: 16),
 
                     // Custo Estimado
-                    TextFormField(
+                    CustomTextField(
                       controller: _costController,
-                      decoration: const InputDecoration(
-                        labelText: 'Custo Estimado por Unidade *',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.attach_money),
-                        prefixText: 'R\$ ',
-                      ),
+                      labelText: 'Custo Estimado por Unidade',
+                      hintText: '0,00',
+                      prefixIcon: Icons.attach_money,
                       keyboardType: TextInputType.number,
+                      isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Custo estimado é obrigatório';

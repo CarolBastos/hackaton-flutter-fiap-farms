@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../presentation/controllers/auth_controller.dart';
 import '../routes.dart';
 import 'components/custom_button.dart';
+import 'components/custom_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -37,40 +38,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 40.0),
-                TextFormField(
+                CustomTextField.large(
                   controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    filled: true,
-                    fillColor: AppColors.grey,
-                    prefixIcon: const Icon(
-                      Icons.email,
-                      color: AppColors.primary,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
+                  labelText: 'Email',
+                  hintText: 'Digite seu email',
+                  keyboardType: TextInputType.emailAddress,
+                  prefixIcon: Icons.email,
+                  variant: TextFieldVariant.filled,
+                  borderRadius: BorderRadius.circular(30.0),
+                  isRequired: true,
                 ),
                 const SizedBox(height: 20.0),
                 // Password TextField
-                TextFormField(
+                CustomTextField.large(
                   controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    filled: true,
-                    fillColor: AppColors.grey,
-                    prefixIcon: const Icon(
-                      Icons.lock,
-                      color: AppColors.primary,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
+                  labelText: 'Senha',
+                  hintText: 'Digite sua senha',
+                  isPassword: true,
+                  prefixIcon: Icons.lock,
+                  variant: TextFieldVariant.filled,
+                  borderRadius: BorderRadius.circular(30.0),
+                  isRequired: true,
                 ),
                 const SizedBox(height: 20.0),
                 // Login Button

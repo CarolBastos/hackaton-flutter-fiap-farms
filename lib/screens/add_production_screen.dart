@@ -6,6 +6,7 @@ import '../presentation/controllers/product_controller.dart';
 import '../utils/app_colors.dart';
 import 'components/custom_app_bar.dart';
 import 'components/custom_button.dart';
+import 'components/custom_text_field.dart';
 
 class AddProductionScreen extends StatefulWidget {
   const AddProductionScreen({super.key});
@@ -82,15 +83,13 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
                     const SizedBox(height: 16),
 
                     // Quantidade Estimada
-                    TextFormField(
+                    CustomTextField(
                       controller: _quantityController,
-                      decoration: const InputDecoration(
-                        labelText: 'Quantidade Estimada *',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.scale),
-                        suffixText: 'kg',
-                      ),
+                      labelText: 'Quantidade Estimada',
+                      hintText: '0,0',
+                      prefixIcon: Icons.scale,
                       keyboardType: TextInputType.number,
+                      isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Quantidade estimada é obrigatória';
@@ -146,14 +145,11 @@ class _AddProductionScreenState extends State<AddProductionScreen> {
                     const SizedBox(height: 16),
 
                     // Observações
-                    TextFormField(
+                    CustomTextField(
                       controller: _notesController,
-                      decoration: const InputDecoration(
-                        labelText: 'Observações',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.note),
-                        hintText: 'Informações adicionais sobre o lote...',
-                      ),
+                      labelText: 'Observações',
+                      hintText: 'Informações adicionais sobre o lote...',
+                      prefixIcon: Icons.note,
                       maxLines: 3,
                     ),
                     const SizedBox(height: 24),
