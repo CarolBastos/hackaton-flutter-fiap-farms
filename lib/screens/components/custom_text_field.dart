@@ -5,6 +5,51 @@ enum TextFieldVariant { outlined, filled, underlined }
 
 enum TextFieldSize { small, medium, large }
 
+/// Campo de texto personalizado com validação
+///
+/// ## Uso básico:
+/// ```dart
+/// CustomTextField(
+///   controller: _controller,
+///   labelText: 'Nome',
+/// )
+/// ```
+///
+/// ## Com validação:
+/// ```dart
+/// CustomTextField(
+///   controller: _emailController,
+///   labelText: 'Email',
+///   keyboardType: TextInputType.emailAddress,
+///   validator: (value) {
+///     if (value?.isEmpty == true) return 'Email obrigatório';
+///     if (!value!.contains('@')) return 'Email inválido';
+///     return null;
+///   },
+/// )
+/// ```
+///
+/// ## Com ícone:
+/// ```dart
+/// CustomTextField(
+///   controller: _passwordController,
+///   labelText: 'Senha',
+///   isPassword: true,
+///   prefixIcon: Icons.lock,
+/// )
+/// ```
+///
+/// ## Parâmetros obrigatórios:
+/// - [controller]: Controlador do campo
+///
+/// ## Parâmetros opcionais:
+/// - [labelText]: Rótulo do campo
+/// - [hintText]: Texto de dica
+/// - [isRequired]: Se é obrigatório (padrão: false)
+/// - [validator]: Função de validação
+/// - [prefixIcon]: Ícone à esquerda
+/// - [variant]: Estilo visual (padrão: outlined)
+/// - [size]: Tamanho do campo (padrão: medium)
 class CustomTextField extends StatefulWidget {
   final String? labelText;
   final String? hintText;
