@@ -29,9 +29,9 @@ class InventoryItem {
       productId: data['productId'] ?? '',
       productName: data['productName'] ?? '',
       productionBatchId: data['productionBatchId'],
-      availableQuantity: (data['availableQuantity'] ?? 0.0).toDouble(),
+      availableQuantity: _parseDouble(data['availableQuantity']),
       unitOfMeasure: data['unitOfMeasure'] ?? '',
-      estimatedCostPerUnit: (data['estimatedCostPerUnit'] ?? 0.0).toDouble(),
+      estimatedCostPerUnit: _parseDouble(data['estimatedCostPerUnit']),
       lastUpdated: (data['lastUpdated'] as Timestamp).toDate(),
       createdBy: data['createdBy'] ?? '',
     );
@@ -42,9 +42,9 @@ class InventoryItem {
       'productId': productId,
       'productName': productName,
       'productionBatchId': productionBatchId,
-      'availableQuantity': availableQuantity,
+      'availableQuantity': availableQuantity.toDouble(),
       'unitOfMeasure': unitOfMeasure,
-      'estimatedCostPerUnit': estimatedCostPerUnit,
+      'estimatedCostPerUnit': estimatedCostPerUnit.toDouble(),
       'lastUpdated': Timestamp.fromDate(lastUpdated),
       'createdBy': createdBy,
     };
@@ -72,5 +72,17 @@ class InventoryItem {
       lastUpdated: lastUpdated ?? this.lastUpdated,
       createdBy: createdBy ?? this.createdBy,
     );
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+
+    return 0.0;
   }
 }

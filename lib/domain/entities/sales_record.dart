@@ -41,12 +41,12 @@ class SalesRecord {
       productId: data['productId'] ?? '',
       productName: data['productName'] ?? '',
       productionBatchId: data['productionBatchId'],
-      quantitySold: (data['quantitySold'] ?? 0.0).toDouble(),
+      quantitySold: _parseDouble(data['quantitySold']),
       unitOfMeasure: data['unitOfMeasure'] ?? '',
-      salePricePerUnit: (data['salePricePerUnit'] ?? 0.0).toDouble(),
-      totalSaleAmount: (data['totalSaleAmount'] ?? 0.0).toDouble(),
-      estimatedCostAtSale: (data['estimatedCostAtSale'] ?? 0.0).toDouble(),
-      calculatedProfit: (data['calculatedProfit'] ?? 0.0).toDouble(),
+      salePricePerUnit: _parseDouble(data['salePricePerUnit']),
+      totalSaleAmount: _parseDouble(data['totalSaleAmount']),
+      estimatedCostAtSale: _parseDouble(data['estimatedCostAtSale']),
+      calculatedProfit: _parseDouble(data['calculatedProfit']),
       saleDate: (data['saleDate'] as Timestamp).toDate(),
       clientInfo: data['clientInfo'],
       notes: data['notes'],
@@ -60,12 +60,12 @@ class SalesRecord {
       'productId': productId,
       'productName': productName,
       'productionBatchId': productionBatchId,
-      'quantitySold': quantitySold,
+      'quantitySold': quantitySold.toDouble(),
       'unitOfMeasure': unitOfMeasure,
-      'salePricePerUnit': salePricePerUnit,
-      'totalSaleAmount': totalSaleAmount,
-      'estimatedCostAtSale': estimatedCostAtSale,
-      'calculatedProfit': calculatedProfit,
+      'salePricePerUnit': salePricePerUnit.toDouble(),
+      'totalSaleAmount': totalSaleAmount.toDouble(),
+      'estimatedCostAtSale': estimatedCostAtSale.toDouble(),
+      'calculatedProfit': calculatedProfit.toDouble(),
       'saleDate': Timestamp.fromDate(saleDate),
       'clientInfo': clientInfo,
       'notes': notes,
@@ -108,5 +108,17 @@ class SalesRecord {
       createdAt: createdAt ?? this.createdAt,
       createdBy: createdBy ?? this.createdBy,
     );
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+
+    return 0.0;
   }
 }

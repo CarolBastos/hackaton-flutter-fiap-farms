@@ -38,16 +38,24 @@ class Product {
       createdAt = DateTime.now();
     }
 
+    bool isActive;
+    try {
+      isActive = data['isActive'] ?? true;
+    } catch (e) {
+      print('Product.fromFirestore: Erro ao processar isActive: $e');
+      isActive = true;
+    }
+
     return Product(
       id: id,
       name: data['name'] ?? '',
       description: data['description'] ?? '',
       category: data['category'] ?? '',
       unitOfMeasure: data['unitOfMeasure'] ?? '',
-      estimatedCostPerUnit: (data['estimatedCostPerUnit'] ?? 0.0).toDouble(),
+      estimatedCostPerUnit: _parseDouble(data['estimatedCostPerUnit']),
       createdAt: createdAt,
       createdBy: data['createdBy'] ?? '',
-      isActive: data['isActive'] ?? true,
+      isActive: isActive,
     );
   }
 
@@ -57,7 +65,7 @@ class Product {
       'description': description,
       'category': category,
       'unitOfMeasure': unitOfMeasure,
-      'estimatedCostPerUnit': estimatedCostPerUnit,
+      'estimatedCostPerUnit': estimatedCostPerUnit.toDouble(),
       'createdAt': Timestamp.fromDate(createdAt),
       'createdBy': createdBy,
       'isActive': isActive,
@@ -86,5 +94,17 @@ class Product {
       createdBy: createdBy ?? this.createdBy,
       isActive: isActive ?? this.isActive,
     );
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+
+    return 0.0;
   }
 }

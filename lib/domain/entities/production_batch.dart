@@ -53,9 +53,9 @@ class ProductionBatch {
           ? (data['actualHarvestDate'] as Timestamp).toDate()
           : null,
       status: _parseStatus(data['status'] ?? 'planejado'),
-      estimatedQuantity: (data['estimatedQuantity'] ?? 0.0).toDouble(),
+      estimatedQuantity: _parseDouble(data['estimatedQuantity']),
       actualQuantity: data['actualQuantity'] != null
-          ? (data['actualQuantity'] as num).toDouble()
+          ? _parseDouble(data['actualQuantity'])
           : null,
       notes: data['notes'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
@@ -122,8 +122,8 @@ class ProductionBatch {
           ? Timestamp.fromDate(actualHarvestDate!)
           : null,
       'status': status.name,
-      'estimatedQuantity': estimatedQuantity,
-      'actualQuantity': actualQuantity,
+      'estimatedQuantity': estimatedQuantity.toDouble(),
+      'actualQuantity': actualQuantity?.toDouble(),
       'notes': notes,
       'createdAt': Timestamp.fromDate(createdAt),
       'createdBy': createdBy,
@@ -163,5 +163,17 @@ class ProductionBatch {
       createdBy: createdBy ?? this.createdBy,
       lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,
     );
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+
+    return 0.0;
   }
 }
