@@ -24,7 +24,7 @@ class _InventorySalesScreenState extends State<InventorySalesScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ProductController>(context, listen: false).loadProducts();
@@ -51,13 +51,12 @@ class _InventorySalesScreenState extends State<InventorySalesScreen>
         tabs: const [
           Tab(icon: Icon(Icons.inventory), text: 'Estoque'),
           Tab(icon: Icon(Icons.shopping_cart), text: 'Vendas'),
-          Tab(icon: Icon(Icons.history), text: 'Histórico'),
         ],
       ),
       drawer: MenuDrawer(currentRoute: Routes.inventorySales),
       body: TabBarView(
         controller: _tabController,
-        children: const [_InventoryTab(), _SalesTab(), _HistoryTab()],
+        children: const [_InventoryTab(), _SalesTab()],
       ),
     );
   }
@@ -713,82 +712,6 @@ class _AddSaleDialogState extends State<_AddSaleDialog> {
           child: const Text('Registrar'),
         ),
       ],
-    );
-  }
-}
-
-class _HistoryTab extends StatelessWidget {
-  const _HistoryTab();
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<SalesController>(
-      builder: (context, salesController, child) {
-        if (salesController.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              const Text(
-                'Histórico de Vendas',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: salesController.salesRecords.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'Nenhuma venda registrada.',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: AppColors.textLight,
-                          ),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: salesController.salesRecords.length,
-                        itemBuilder: (context, index) {
-                          final sale = salesController.salesRecords[index];
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: AppColors.info,
-                                child: Icon(
-                                  Icons.history,
-                                  color: AppColors.textWhite,
-                                ),
-                              ),
-                              title: Text(
-                                sale.productName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Text(
-                                '${sale.quantitySold} ${sale.unitOfMeasure} • ${DateFormatter.formatDateTime(sale.saleDate)}',
-                              ),
-                              trailing: Text(
-                                'R\$ ${sale.totalSaleAmount.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.success,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }
