@@ -92,10 +92,28 @@ class _SalesDashboardState extends State<SalesDashboard> {
             return {'product': product, 'profit': totalProductProfit};
           }).toList();
 
-          // Ordenar por lucro
-          productsWithProfit.sort(
-            (a, b) => (b['profit'] as double).compareTo(a['profit'] as double),
-          );
+          // Ordenar por prioridade de gestão
+          productsWithProfit.sort((a, b) {
+            final profitA = a['profit'] as double;
+            final profitB = b['profit'] as double;
+
+            // 1º: Lucros positivos (do maior para o menor)
+            if (profitA > 0 && profitB > 0) {
+              return profitB.compareTo(profitA);
+            }
+            if (profitA > 0) return -1; // Lucro positivo vem primeiro
+            if (profitB > 0) return 1;
+
+            // 2º: Prejuízos (do menor prejuízo para o maior)
+            if (profitA < 0 && profitB < 0) {
+              return profitA.compareTo(profitB); // Menor prejuízo primeiro
+            }
+            if (profitA < 0) return -1; // Prejuízo vem antes de zero
+            if (profitB < 0) return 1;
+
+            // 3º: Lucros zero (sem vendas)
+            return 0;
+          });
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
@@ -163,7 +181,7 @@ class _SalesDashboardState extends State<SalesDashboard> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Produtos Cadastrados',
+                        'Produtos e Lucratividade',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -186,6 +204,76 @@ class _SalesDashboardState extends State<SalesDashboard> {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Legenda das categorias
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.greyLight,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: AppColors.success,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Lucros Positivos (do maior para o menor)',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.success,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.warning,
+                              color: AppColors.danger,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Prejuízos (do menor para o maior)',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.danger,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.analytics,
+                              color: AppColors.textSecondary,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Sem Vendas (R\$ 0,00)',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 8),
                   if (productsWithProfit.isEmpty)
@@ -211,17 +299,58 @@ class _SalesDashboardState extends State<SalesDashboard> {
                         final productData = productsWithProfit[index];
                         final product = productData['product'] as Product;
                         final profit = productData['profit'] as double;
+                        // Determinar categoria e ícone
+                        IconData statusIcon;
+                        Color statusColor;
+                        String statusText;
+
+                        if (profit > 0) {
+                          statusIcon = Icons.trending_up;
+                          statusColor = AppColors.success;
+                          statusText = 'LUCRO';
+                        } else if (profit < 0) {
+                          statusIcon = Icons.trending_down;
+                          statusColor = AppColors.danger;
+                          statusText = 'PREJUÍZO';
+                        } else {
+                          statusIcon = Icons.remove;
+                          statusColor = AppColors.textSecondary;
+                          statusText = 'SEM VENDAS';
+                        }
+
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: AppColors.primary,
-                            child: Text(
-                              '${index + 1}',
-                              style: const TextStyle(
-                                color: AppColors.textWhite,
-                              ),
+                            backgroundColor: statusColor,
+                            child: Icon(
+                              statusIcon,
+                              color: AppColors.textWhite,
+                              size: 20,
                             ),
                           ),
-                          title: Text(product.name),
+                          title: Row(
+                            children: [
+                              Text(product.name),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: statusColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  statusText,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: statusColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                           subtitle: Text(
                             '${product.category} • ${product.unitOfMeasure}',
                           ),
@@ -231,9 +360,10 @@ class _SalesDashboardState extends State<SalesDashboard> {
                             children: [
                               Text(
                                 'R\$ ${profit.toStringAsFixed(2)}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
+                                  fontSize: 16,
+                                  color: statusColor,
                                 ),
                               ),
                               Text(
@@ -311,7 +441,16 @@ class _SalesDashboardState extends State<SalesDashboard> {
                                 BarChartRodData(
                                   toY:
                                       productsWithProfit[i]['profit'] as double,
-                                  color: AppColors.primary,
+                                  color:
+                                      (productsWithProfit[i]['profit']
+                                              as double) >
+                                          0
+                                      ? AppColors.success
+                                      : (productsWithProfit[i]['profit']
+                                                as double) <
+                                            0
+                                      ? AppColors.danger
+                                      : AppColors.textSecondary,
                                   width: 22,
                                 ),
                               ],
