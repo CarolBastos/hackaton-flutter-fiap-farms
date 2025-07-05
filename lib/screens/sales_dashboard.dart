@@ -235,7 +235,7 @@ class _SalesDashboardState extends State<SalesDashboard> {
                                 'R\$ ${profit.toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.success,
+                                  color: AppColors.primary,
                                 ),
                               ),
                               Text(
@@ -312,7 +312,7 @@ class _SalesDashboardState extends State<SalesDashboard> {
                                 BarChartRodData(
                                   toY:
                                       productsWithProfit[i]['profit'] as double,
-                                  color: AppColors.success,
+                                  color: AppColors.primary,
                                   width: 22,
                                 ),
                               ],
@@ -423,7 +423,7 @@ class _IndicatorCard extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 28, color: AppColors.success),
+            Icon(icon, size: 28, color: AppColors.primary),
             const SizedBox(height: 8),
             Text(
               value,

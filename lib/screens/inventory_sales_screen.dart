@@ -358,7 +358,7 @@ class _SalesTab extends StatelessWidget {
                             margin: const EdgeInsets.only(bottom: 8),
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor: AppColors.success,
+                                backgroundColor: AppColors.primary,
                                 child: Text(
                                   'R\$',
                                   style: const TextStyle(
@@ -383,14 +383,14 @@ class _SalesTab extends StatelessWidget {
                                     'R\$ ${sale.totalSaleAmount.toStringAsFixed(2)}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.success,
+                                      color: AppColors.primary,
                                     ),
                                   ),
                                   Text(
                                     'Lucro: R\$ ${sale.calculatedProfit.toStringAsFixed(2)}',
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.success,
+                                      color: AppColors.primary,
                                     ),
                                   ),
                                 ],
