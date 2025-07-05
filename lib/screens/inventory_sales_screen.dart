@@ -139,87 +139,89 @@ class _InventoryTab extends StatelessWidget {
                               child: Padding(
                                 padding: const EdgeInsets.all(12.0),
                                 child: Row(
-                                children: [
-                                  // Ícone e número
-                                  CircleAvatar(
-                                    backgroundColor: AppColors.primary,
-                                    child: Text(
-                                      '${index + 1}',
-                                      style: const TextStyle(
-                                        color: AppColors.textWhite,
+                                  children: [
+                                    // Ícone e número
+                                    CircleAvatar(
+                                      backgroundColor: AppColors.primary,
+                                      child: Text(
+                                        '${index + 1}',
+                                        style: const TextStyle(
+                                          color: AppColors.textWhite,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  // Informações principais
-                                  Expanded(
-                                    flex: 3,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          item.productName,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          'Disponível: ${item.availableQuantity} ${item.unitOfMeasure}',
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            color: AppColors.success,
-                                          ),
-                                        ),
-                                        if (item.soldQuantity > 0)
+                                    const SizedBox(width: 12),
+                                    // Informações principais
+                                    Expanded(
+                                      flex: 3,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
                                           Text(
-                                            'Vendido: ${item.soldQuantity} ${item.unitOfMeasure}',
+                                            item.productName,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Disponível: ${item.availableQuantity} ${item.unitOfMeasure}',
                                             style: const TextStyle(
                                               fontSize: 14,
-                                              color: AppColors.primary,
+                                              color: AppColors.success,
                                             ),
                                           ),
-                                      ],
+                                          if (item.soldQuantity > 0)
+                                            Text(
+                                              'Vendido: ${item.soldQuantity} ${item.unitOfMeasure}',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                color: AppColors.primary,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  // Preço e custo
-                                  Expanded(
-                                    flex: 2,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          'R\$ ${item.estimatedCostPerUnit.toStringAsFixed(2)}',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.success,
-                                          ),
-                                        ),
-                                        Text(
-                                          'por ${item.unitOfMeasure}',
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: AppColors.textLight,
-                                          ),
-                                        ),
-                                        if (item.soldQuantity > 0)
+                                    // Preço e custo
+                                    Expanded(
+                                      flex: 2,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
                                           Text(
-                                            'Total vendido: R\$ ${(item.soldQuantity * item.estimatedCostPerUnit).toStringAsFixed(2)}',
+                                            'R\$ ${item.estimatedCostPerUnit.toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.success,
+                                            ),
+                                          ),
+                                          Text(
+                                            'por ${item.unitOfMeasure}',
                                             style: const TextStyle(
                                               fontSize: 12,
-                                              color: AppColors.primary,
-                                              fontWeight: FontWeight.w500,
+                                              color: AppColors.textLight,
                                             ),
                                           ),
-                                      ],
+                                          if (item.soldQuantity > 0)
+                                            Text(
+                                              'Total vendido: R\$ ${(item.soldQuantity * item.estimatedCostPerUnit).toStringAsFixed(2)}',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: AppColors.primary,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
+                          );
                         },
                       ),
               ),
@@ -306,9 +308,13 @@ class _InventoryTab extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Quantidade disponível: ${item.availableQuantity} ${item.unitOfMeasure}'),
+            Text(
+              'Quantidade disponível: ${item.availableQuantity} ${item.unitOfMeasure}',
+            ),
             if (item.soldQuantity > 0)
-              Text('Quantidade vendida: ${item.soldQuantity} ${item.unitOfMeasure}'),
+              Text(
+                'Quantidade vendida: ${item.soldQuantity} ${item.unitOfMeasure}',
+              ),
             Text(
               'Custo por unidade: R\$ ${item.estimatedCostPerUnit.toStringAsFixed(2)}',
             ),
@@ -462,124 +468,10 @@ class _SalesTab extends StatelessWidget {
     BuildContext context,
     ProductController productController,
   ) {
-    String? selectedProductId;
-    final quantityController = TextEditingController();
-    final priceController = TextEditingController();
-    final clientController = TextEditingController();
-
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Registrar Venda'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DropdownButtonFormField<String>(
-              value: selectedProductId,
-              decoration: const InputDecoration(
-                labelText: 'Produto',
-                border: OutlineInputBorder(),
-              ),
-              items: productController.products.map((product) {
-                return DropdownMenuItem(
-                  value: product.id,
-                  child: Text(product.name),
-                );
-              }).toList(),
-              onChanged: (value) {
-                selectedProductId = value;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: quantityController,
-              decoration: const InputDecoration(
-                labelText: 'Quantidade',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: priceController,
-              decoration: const InputDecoration(
-                labelText: 'Preço por unidade',
-                border: OutlineInputBorder(),
-                prefixText: 'R\$ ',
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: clientController,
-              decoration: const InputDecoration(
-                labelText: 'Cliente (opcional)',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (selectedProductId != null &&
-                  quantityController.text.isNotEmpty &&
-                  priceController.text.isNotEmpty) {
-                final quantity = double.tryParse(quantityController.text);
-                final price = double.tryParse(priceController.text);
-                if (quantity != null &&
-                    price != null &&
-                    quantity > 0 &&
-                    price > 0) {
-                  final selectedProduct = productController.products.firstWhere(
-                    (product) => product.id == selectedProductId,
-                  );
-
-                  final totalAmount = quantity * price;
-                  final estimatedCost =
-                      quantity * selectedProduct.estimatedCostPerUnit;
-                  final profit = totalAmount - estimatedCost;
-
-                  final salesRecord = SalesRecord(
-                    productId: selectedProductId!,
-                    productName: selectedProduct.name,
-                    quantitySold: quantity,
-                    unitOfMeasure: selectedProduct.unitOfMeasure,
-                    salePricePerUnit: price,
-                    totalSaleAmount: totalAmount,
-                    estimatedCostAtSale: estimatedCost,
-                    calculatedProfit: profit,
-                    saleDate: DateTime.now(),
-                    clientInfo: clientController.text.isNotEmpty
-                        ? clientController.text
-                        : null,
-                    createdAt: DateTime.now(),
-                    createdBy: '',
-                  );
-
-                  // Primeiro processa a venda no estoque
-                  await Provider.of<InventoryController>(
-                    context,
-                    listen: false,
-                  ).processSale(selectedProductId!, quantity);
-                  
-                  // Depois registra a venda
-                  Provider.of<SalesController>(
-                    context,
-                    listen: false,
-                  ).createSalesRecord(salesRecord);
-                  Navigator.pop(context);
-                }
-              }
-            },
-            child: const Text('Registrar'),
-          ),
-        ],
-      ),
+      builder: (context) =>
+          _AddSaleDialog(productController: productController),
     );
   }
 
@@ -612,6 +504,214 @@ class _SalesTab extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AddSaleDialog extends StatefulWidget {
+  final ProductController productController;
+
+  const _AddSaleDialog({required this.productController});
+
+  @override
+  State<_AddSaleDialog> createState() => _AddSaleDialogState();
+}
+
+class _AddSaleDialogState extends State<_AddSaleDialog> {
+  String? selectedProductId;
+  String? stockError;
+  double? availableStock;
+  final quantityController = TextEditingController();
+  final priceController = TextEditingController();
+  final clientController = TextEditingController();
+
+  @override
+  void dispose() {
+    quantityController.dispose();
+    priceController.dispose();
+    clientController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Registrar Venda'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          DropdownButtonFormField<String>(
+            value: selectedProductId,
+            decoration: const InputDecoration(
+              labelText: 'Produto',
+              border: OutlineInputBorder(),
+            ),
+            items: widget.productController.products.map((product) {
+              return DropdownMenuItem(
+                value: product.id,
+                child: Text(product.name),
+              );
+            }).toList(),
+            onChanged: (value) async {
+              setState(() {
+                selectedProductId = value;
+                stockError = null;
+                availableStock = null;
+              });
+
+              // Verificar estoque quando produto for selecionado
+              if (value != null) {
+                final inventoryController = Provider.of<InventoryController>(
+                  context,
+                  listen: false,
+                );
+                final inventoryItem = await inventoryController
+                    .getInventoryItemByProductId(value);
+
+                setState(() {
+                  if (inventoryItem != null) {
+                    availableStock = inventoryItem.availableQuantity;
+                    if (availableStock == 0) {
+                      stockError = 'Produto sem estoque disponível';
+                    }
+                  } else {
+                    stockError = 'Produto não encontrado no estoque';
+                  }
+                });
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: quantityController,
+            decoration: const InputDecoration(
+              labelText: 'Quantidade',
+              border: OutlineInputBorder(),
+            ),
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              if (value.isNotEmpty && availableStock != null) {
+                final quantity = double.tryParse(value);
+                if (quantity != null && quantity > availableStock!) {
+                  setState(() {
+                    stockError =
+                        'Quantidade solicitada (${quantity.toStringAsFixed(1)}) excede o estoque disponível (${availableStock!.toStringAsFixed(1)})';
+                  });
+                } else {
+                  setState(() {
+                    stockError = null;
+                  });
+                }
+              }
+            },
+          ),
+          if (availableStock != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                'Estoque disponível: ${availableStock!.toStringAsFixed(1)}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.success,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          if (stockError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                stockError!,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.errorText,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: priceController,
+            decoration: const InputDecoration(
+              labelText: 'Preço por unidade',
+              border: OutlineInputBorder(),
+              prefixText: 'R\$ ',
+            ),
+            keyboardType: TextInputType.number,
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: clientController,
+            decoration: const InputDecoration(
+              labelText: 'Cliente (opcional)',
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancelar'),
+        ),
+        ElevatedButton(
+          onPressed:
+              (selectedProductId != null &&
+                  quantityController.text.isNotEmpty &&
+                  priceController.text.isNotEmpty &&
+                  stockError == null)
+              ? () async {
+                  final quantity = double.tryParse(quantityController.text);
+                  final price = double.tryParse(priceController.text);
+                  if (quantity != null &&
+                      price != null &&
+                      quantity > 0 &&
+                      price > 0) {
+                    final selectedProduct = widget.productController.products
+                        .firstWhere(
+                          (product) => product.id == selectedProductId,
+                        );
+
+                    final totalAmount = quantity * price;
+                    final estimatedCost =
+                        quantity * selectedProduct.estimatedCostPerUnit;
+                    final profit = totalAmount - estimatedCost;
+
+                    final salesRecord = SalesRecord(
+                      productId: selectedProductId!,
+                      productName: selectedProduct.name,
+                      quantitySold: quantity,
+                      unitOfMeasure: selectedProduct.unitOfMeasure,
+                      salePricePerUnit: price,
+                      totalSaleAmount: totalAmount,
+                      estimatedCostAtSale: estimatedCost,
+                      calculatedProfit: profit,
+                      saleDate: DateTime.now(),
+                      clientInfo: clientController.text.isNotEmpty
+                          ? clientController.text
+                          : null,
+                      createdAt: DateTime.now(),
+                      createdBy: '',
+                    );
+
+                    // Primeiro processa a venda no estoque
+                    await Provider.of<InventoryController>(
+                      context,
+                      listen: false,
+                    ).processSale(selectedProductId!, quantity);
+
+                    // Depois registra a venda
+                    Provider.of<SalesController>(
+                      context,
+                      listen: false,
+                    ).createSalesRecord(salesRecord);
+                    Navigator.pop(context);
+                  }
+                }
+              : null,
+          child: const Text('Registrar'),
+        ),
+      ],
     );
   }
 }
