@@ -99,18 +99,13 @@ class AppDrawer extends StatelessWidget {
       children: [
         ListTile(
           leading: const Icon(Icons.inventory, color: AppColors.primary),
-          title: const Text('Controle de Estoque'),
+          title: const Text('Controle de Estoque e Vendas'),
+          selected: currentRoute == Routes.inventorySales,
           onTap: () {
             Navigator.pop(context);
-            _showFeatureInDevelopment(context, 'Controle de Estoque');
-          },
-        ),
-        ListTile(
-          leading: const Icon(Icons.shopping_cart, color: AppColors.primary),
-          title: const Text('Controle de Vendas'),
-          onTap: () {
-            Navigator.pop(context);
-            _showFeatureInDevelopment(context, 'Controle de Vendas');
+            if (currentRoute != Routes.inventorySales) {
+              Navigator.pushReplacementNamed(context, Routes.inventorySales);
+            }
           },
         ),
         ListTile(
