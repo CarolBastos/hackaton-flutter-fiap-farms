@@ -2,6 +2,7 @@ import 'package:fiap_farms/domain/entities/register_user.dart';
 import 'package:fiap_farms/domain/entities/user.dart';
 import 'package:fiap_farms/domain/usecases/auth_usecases.dart';
 import 'package:fiap_farms/domain/usecases/register_usecase.dart';
+import 'package:fiap_farms/domain/usecases/change_password_usecase.dart';
 import 'package:flutter/material.dart';
 
 class AuthController extends ChangeNotifier {
@@ -9,16 +10,19 @@ class AuthController extends ChangeNotifier {
   final SignOutUseCase _signOutUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final RegisterUserUseCase _registerUserUseCase;
+  final ChangePasswordUseCase _changePasswordUseCase;
 
   AuthController({
     required SignInUseCase signInUseCase,
     required SignOutUseCase signOutUseCase,
     required GetCurrentUserUseCase getCurrentUserUseCase,
     required RegisterUserUseCase registerUserUseCase,
+    required ChangePasswordUseCase changePasswordUseCase,
   }) : _signInUseCase = signInUseCase,
        _signOutUseCase = signOutUseCase,
        _getCurrentUserUseCase = getCurrentUserUseCase,
-       _registerUserUseCase = registerUserUseCase;
+       _registerUserUseCase = registerUserUseCase,
+       _changePasswordUseCase = changePasswordUseCase;
 
   User? _currentUser;
   bool _isLoading = false;
@@ -35,15 +39,10 @@ class AuthController extends ChangeNotifier {
 
     try {
       final user = await _signInUseCase.execute(email, password);
-      _currentUser = User(
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role ?? 'user', // Garante um valor padrão
-      );
+      _currentUser = user;
       notifyListeners();
     } catch (e) {
-      _setError(e.toString());
+      setError(e.toString());
     } finally {
       _setLoading(false);
     }
@@ -57,7 +56,7 @@ class AuthController extends ChangeNotifier {
       _currentUser = null;
       notifyListeners();
     } catch (e) {
-      _setError(e.toString());
+      setError(e.toString());
     } finally {
       _setLoading(false);
     }
@@ -68,7 +67,7 @@ class AuthController extends ChangeNotifier {
       _currentUser = await _getCurrentUserUseCase.execute();
       notifyListeners();
     } catch (e) {
-      _setError(e.toString());
+      setError(e.toString());
     }
   }
 
@@ -82,12 +81,10 @@ class AuthController extends ChangeNotifier {
     _clearError();
 
     try {
-      // Validações
       if (password.length < 6) {
         throw Exception('A senha deve ter pelo menos 6 caracteres');
       }
 
-      // Cria o objeto de parâmetros
       final params = RegisterUserParams(
         name: name,
         email: email,
@@ -95,11 +92,43 @@ class AuthController extends ChangeNotifier {
         role: role,
       );
 
-      // Chama o use case com os parâmetros
       _currentUser = await _registerUserUseCase.execute(params);
       notifyListeners();
     } catch (e) {
-      _setError(e.toString());
+      setError(e.toString());
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> changePassword({
+    String? currentPassword,
+    required String newPassword,
+    bool isFirstLogin = false,
+  }) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      if (newPassword.length < 6) {
+        throw Exception('A senha deve ter pelo menos 6 caracteres');
+      }
+
+      final success = await _changePasswordUseCase.execute(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+        isFirstLogin: isFirstLogin,
+      );
+
+      if (success && isFirstLogin) {
+        _currentUser = _currentUser?.copyWith(firstLogin: false);
+        notifyListeners();
+      }
+
+      return success;
+    } catch (e) {
+      setError(e.toString());
+      return false;
     } finally {
       _setLoading(false);
     }
@@ -111,7 +140,7 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _setError(String error) {
+  void setError(String error) {
     _errorMessage = error;
     notifyListeners();
   }

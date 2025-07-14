@@ -1,3 +1,4 @@
+import 'package:fiap_farms/domain/usecases/change_password_usecase.dart';
 import 'package:fiap_farms/domain/usecases/register_usecase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../data/repositories/auth_repository_impl.dart';
@@ -40,11 +41,13 @@ class DependencyInjection {
   SignOutUseCase get signOutUseCase => SignOutUseCase(authRepository);
   GetCurrentUserUseCase get getCurrentUserUseCase =>
       GetCurrentUserUseCase(authRepository);
-      
+
   // Novo use case adicionado
-  RegisterUserUseCase get registerUserUseCase => RegisterUserUseCaseImpl(
-    repository: authRepository,
-  );
+  RegisterUserUseCase get getRegisterUserUseCase =>
+      RegisterUserUseCaseImpl(repository: authRepository);
+
+  ChangePasswordUseCase get getChangePasswordUseCase =>
+      ChangePasswordUseCaseImpl(repository: authRepository);
 
   GetSalesDataUseCase get getSalesDataUseCase =>
       GetSalesDataUseCase(salesRepository);
@@ -96,7 +99,8 @@ class DependencyInjection {
     signInUseCase: signInUseCase,
     signOutUseCase: signOutUseCase,
     getCurrentUserUseCase: getCurrentUserUseCase,
-    registerUserUseCase: registerUserUseCase, // Agora está definido
+    registerUserUseCase: getRegisterUserUseCase,
+    changePasswordUseCase: getChangePasswordUseCase, // Agora está definido
   );
 
   ProductController get productController => ProductController(

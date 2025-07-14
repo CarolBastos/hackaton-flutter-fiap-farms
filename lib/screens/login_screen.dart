@@ -21,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F3FC), // Light purple background
+      backgroundColor: const Color(0xFFF7F3FC),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30.0),
         child: Center(
@@ -49,7 +49,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   isRequired: true,
                 ),
                 const SizedBox(height: 20.0),
-                // Password TextField
                 CustomTextField.large(
                   controller: _passwordController,
                   labelText: 'Senha',
@@ -61,7 +60,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   isRequired: true,
                 ),
                 const SizedBox(height: 20.0),
-                // Login Button
                 Consumer<AuthController>(
                   builder: (context, authController, child) {
                     return Column(
@@ -74,7 +72,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                         const SizedBox(height: 10.0),
-                        // Error Message Display
                         if (authController.errorMessage.isNotEmpty)
                           Text(
                             authController.errorMessage,
@@ -96,14 +93,18 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _login(AuthController authController) async {
+  Future<void> _login(AuthController authController) async {
     await authController.signIn(
       _emailController.text,
       _passwordController.text,
     );
 
-    if (authController.isAuthenticated) {
-      if (mounted) {
+    if (authController.isAuthenticated && mounted) {
+      // Verificar se é o primeiro login
+      final currentUser = authController.currentUser;
+      if (currentUser!.firstLogin == true) {
+        Navigator.pushReplacementNamed(context, Routes.changePassword);
+      } else {
         Navigator.pushReplacementNamed(context, Routes.dashboard);
       }
     }

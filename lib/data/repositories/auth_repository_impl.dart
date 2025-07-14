@@ -39,7 +39,8 @@ class AuthRepositoryImpl implements AuthRepository {
             userDoc.data()?['displayName'] ??
             userCredential.user!.displayName ??
             '',
-        role: userDoc.data()?['role'] ?? 'admin', // Garante um valor padrão
+        role: userDoc.data()?['role'] ?? 'admin',
+        firstLogin: userDoc.data()?['firstLogin'] ?? true,
       );
     } on firebase.FirebaseAuthException catch (e) {
       switch (e.code) {
@@ -81,6 +82,7 @@ class AuthRepositoryImpl implements AuthRepository {
         email: email,
         name: name,
         role: role,
+        firstLogin: true,
       );
 
       // 3. Salvar informações adicionais no Firestore
@@ -133,6 +135,51 @@ class AuthRepositoryImpl implements AuthRepository {
       email: firebaseUser.email ?? '',
       name: userDoc.data()?['displayName'] ?? firebaseUser.displayName ?? '',
       role: userDoc.data()?['role'] ?? 'admin',
+      firstLogin: userDoc.data()?['firstLogin'] ?? true,
     );
+  }
+
+  @override
+  Future<bool> changePassword({
+    String? currentPassword,
+    required String newPassword,
+    bool isFirstLogin = false,
+  }) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        throw Exception('Usuário não está autenticado');
+      }
+
+      if (!isFirstLogin && currentPassword == null) {
+        throw Exception('Senha atual é necessária para alteração de senha');
+      }
+
+      if (!isFirstLogin) {
+        // Reautenticar o usuário antes de alterar a senha
+        final credential = firebase.EmailAuthProvider.credential(
+          email: user.email!,
+          password: currentPassword!,
+        );
+        await user.reauthenticateWithCredential(credential);
+      }
+
+      // Alterar a senha
+      await user.updatePassword(newPassword);
+      return true;
+    } on firebase.FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'requires-recent-login':
+          throw Exception(
+            'Reautenticação necessária. Por favor, faça login novamente.',
+          );
+        case 'weak-password':
+          throw Exception('A nova senha é muito fraca');
+        default:
+          throw Exception('Erro ao alterar senha: ${e.message}');
+      }
+    } catch (e) {
+      throw Exception('Erro desconhecido ao alterar senha: $e');
+    }
   }
 }

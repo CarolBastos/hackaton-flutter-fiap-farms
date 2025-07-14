@@ -10,4 +10,9 @@ abstract class AuthRepository {
     required String password,
     required String role,
   });
+  Future<bool> changePassword({
+    String? currentPassword,
+    required String newPassword,
+    bool isFirstLogin = false,
+  });
 }

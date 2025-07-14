@@ -6,4 +6,5 @@ class Routes {
   static const String addProduction = '/add-production';
   static const String inventorySales = '/inventory-sales';
   static const String adminRegister = '/admin-register';
+  static const String changePassword = '/change-password';
 }

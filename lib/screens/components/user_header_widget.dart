@@ -33,11 +33,12 @@ class UserHeader extends StatelessWidget {
           );
         }
         final data = snapshot.data!.data() as Map<String, dynamic>;
-        final email = data['email'] ?? '';
+        final name = data['displayName'] ?? '';
+        final firstTime = data['firstLogin'] ?? '';
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 12.0),
           child: Text(
-            'Bem-vindo, $email',
+            'Bem-vindo, $name, é $firstTime',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         );
