@@ -11,6 +11,9 @@ class MenuDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authController = Provider.of<AuthController>(context);
+    final isAdmin = authController.currentUser?.role == 'admin';
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -19,6 +22,7 @@ class MenuDrawer extends StatelessWidget {
           _buildNavigationItems(context),
           const Divider(),
           _buildFeatureItems(context),
+          if (isAdmin) ...[const Divider(), _buildAdminItems(context)],
           const Divider(),
           _buildUserItems(context),
         ],
@@ -116,6 +120,22 @@ class MenuDrawer extends StatelessWidget {
           onTap: () {
             Navigator.pop(context);
             _showFeatureInDevelopment(context, 'Metas e Notificações');
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAdminItems(BuildContext context) {
+    return Column(
+      children: [
+        ListTile(
+          leading: const Icon(Icons.person_add, color: AppColors.primary),
+          title: const Text('Cadastrar Novo Usuário'),
+          selected: currentRoute == Routes.adminRegister,
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.pushNamed(context, Routes.adminRegister);
           },
         ),
       ],

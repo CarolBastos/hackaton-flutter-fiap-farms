@@ -1,19 +1,24 @@
+import 'package:fiap_farms/domain/entities/register_user.dart';
+import 'package:fiap_farms/domain/entities/user.dart';
+import 'package:fiap_farms/domain/usecases/auth_usecases.dart';
+import 'package:fiap_farms/domain/usecases/register_usecase.dart';
 import 'package:flutter/material.dart';
-import '../../domain/entities/user.dart';
-import '../../domain/usecases/auth_usecases.dart';
 
 class AuthController extends ChangeNotifier {
   final SignInUseCase _signInUseCase;
   final SignOutUseCase _signOutUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
+  final RegisterUserUseCase _registerUserUseCase;
 
   AuthController({
     required SignInUseCase signInUseCase,
     required SignOutUseCase signOutUseCase,
     required GetCurrentUserUseCase getCurrentUserUseCase,
+    required RegisterUserUseCase registerUserUseCase,
   }) : _signInUseCase = signInUseCase,
        _signOutUseCase = signOutUseCase,
-       _getCurrentUserUseCase = getCurrentUserUseCase;
+       _getCurrentUserUseCase = getCurrentUserUseCase,
+       _registerUserUseCase = registerUserUseCase;
 
   User? _currentUser;
   bool _isLoading = false;
@@ -29,7 +34,13 @@ class AuthController extends ChangeNotifier {
     _clearError();
 
     try {
-      _currentUser = await _signInUseCase.execute(email, password);
+      final user = await _signInUseCase.execute(email, password);
+      _currentUser = User(
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role ?? 'user', // Garante um valor padrão
+      );
       notifyListeners();
     } catch (e) {
       _setError(e.toString());
@@ -61,6 +72,40 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  Future<void> registerUser({
+    required String name,
+    required String email,
+    required String password,
+    required String role,
+  }) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      // Validações
+      if (password.length < 6) {
+        throw Exception('A senha deve ter pelo menos 6 caracteres');
+      }
+
+      // Cria o objeto de parâmetros
+      final params = RegisterUserParams(
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+      );
+
+      // Chama o use case com os parâmetros
+      _currentUser = await _registerUserUseCase.execute(params);
+      notifyListeners();
+    } catch (e) {
+      _setError(e.toString());
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Métodos auxiliares
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();

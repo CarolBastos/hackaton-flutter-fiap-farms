@@ -5,4 +5,5 @@ class Routes {
   static const String productionDashboard = '/production-dashboard';
   static const String addProduction = '/add-production';
   static const String inventorySales = '/inventory-sales';
+  static const String adminRegister = '/admin-register';
 }
