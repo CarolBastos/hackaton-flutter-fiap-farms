@@ -147,39 +147,29 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final user = _firebaseAuth.currentUser;
-      if (user == null) {
-        throw Exception('Usuário não está autenticado');
-      }
+      if (user == null) throw Exception('Usuário não autenticado');
 
-      if (!isFirstLogin && currentPassword == null) {
-        throw Exception('Senha atual é necessária para alteração de senha');
-      }
-
-      if (!isFirstLogin) {
-        // Reautenticar o usuário antes de alterar a senha
+      if (!isFirstLogin && currentPassword != null) {
         final credential = firebase.EmailAuthProvider.credential(
           email: user.email!,
-          password: currentPassword!,
+          password: currentPassword,
         );
         await user.reauthenticateWithCredential(credential);
       }
 
-      // Alterar a senha
       await user.updatePassword(newPassword);
-      return true;
-    } on firebase.FirebaseAuthException catch (e) {
-      switch (e.code) {
-        case 'requires-recent-login':
-          throw Exception(
-            'Reautenticação necessária. Por favor, faça login novamente.',
-          );
-        case 'weak-password':
-          throw Exception('A nova senha é muito fraca');
-        default:
-          throw Exception('Erro ao alterar senha: ${e.message}');
+
+      // Atualiza o firstLogin no Firestore se for primeiro login
+      if (isFirstLogin) {
+        await _firestore.collection('users').doc(user.uid).update({
+          'firstLogin': false,
+          'lastPasswordChange': FieldValue.serverTimestamp(),
+        });
       }
+
+      return true;
     } catch (e) {
-      throw Exception('Erro desconhecido ao alterar senha: $e');
+      throw Exception('Erro ao alterar senha: ${e.toString()}');
     }
   }
 }

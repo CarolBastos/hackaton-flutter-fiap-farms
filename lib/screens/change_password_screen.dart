@@ -14,6 +14,14 @@ class ChangePasswordScreen extends StatefulWidget {
 
   @override
   State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
+
+  static Route route(RouteSettings settings) {
+    final args = settings.arguments as Map<String, dynamic>?;
+    return MaterialPageRoute(
+      builder: (_) =>
+          ChangePasswordScreen(isFirstLogin: args?['isFirstLogin'] ?? false),
+    );
+  }
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
@@ -82,7 +90,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 if (!widget.isFirstLogin) const SizedBox(height: 20),
                 CustomTextField.large(
                   controller: _newPasswordController,
-                  labelText: widget.isFirstLogin ? 'Nova Senha' : 'Nova Senha',
+                  labelText: 'Nova Senha',
                   hintText: 'Digite a nova senha',
                   isPassword: true,
                   prefixIcon: Icons.lock_outline,
@@ -128,7 +136,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     );
                   },
                 ),
-                if (widget.isFirstLogin) const SizedBox(height: 20),
               ],
             ),
           ),
@@ -148,22 +155,38 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       return;
     }
 
-    final success = await authController.changePassword(
-      currentPassword: widget.isFirstLogin
-          ? null
-          : _currentPasswordController.text,
-      newPassword: _newPasswordController.text,
-      isFirstLogin: widget.isFirstLogin,
-    );
+    try {
+      final success = await authController.changePassword(
+        currentPassword: widget.isFirstLogin
+            ? null
+            : _currentPasswordController.text,
+        newPassword: _newPasswordController.text,
+        isFirstLogin: widget.isFirstLogin,
+      );
 
-    if (success && mounted) {
-      if (widget.isFirstLogin) {
-        Navigator.pushReplacementNamed(context, Routes.dashboard);
-      } else {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Senha alterada com sucesso!')),
-        );
+      if (success && mounted) {
+        if (widget.isFirstLogin) {
+          // Aguarda a atualização completa do estado
+          await Future.delayed(const Duration(seconds: 1));
+
+          // Navegação segura com limpeza de stack
+          Navigator.of(
+            context,
+          ).pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+        } else {
+          Navigator.pop(context);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Senha alterada com sucesso!')),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro: ${e.toString()}')));
       }
     }
   }

@@ -3,14 +3,14 @@ class User {
   final String email;
   final String? name;
   final String? role;
-  final bool firstLogin;
+  final bool? firstLogin;
 
   User({
     required this.id,
     required this.email,
     this.name,
     this.role,
-    required this.firstLogin,
+    this.firstLogin,
   });
 
   factory User.fromFirebase(dynamic firebaseUser) {
@@ -23,7 +23,6 @@ class User {
     );
   }
 
-  // Método copyWith implementado corretamente
   User copyWith({
     String? id,
     String? email,

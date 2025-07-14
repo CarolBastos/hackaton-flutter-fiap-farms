@@ -120,21 +120,27 @@ class AuthController extends ChangeNotifier {
         isFirstLogin: isFirstLogin,
       );
 
-      if (success && isFirstLogin) {
-        _currentUser = _currentUser?.copyWith(firstLogin: false);
-        notifyListeners();
+      if (success) {
+        // Atualiza o estado do usuário
+        if (isFirstLogin) {
+          _currentUser = _currentUser?.copyWith(firstLogin: false);
+        }
+        // Força uma nova verificação do usuário
+        await _getCurrentUserUseCase.execute().then((user) {
+          _currentUser = user;
+          notifyListeners();
+        });
       }
 
       return success;
     } catch (e) {
-      setError(e.toString());
+      setError('Erro ao alterar senha: ${e.toString()}');
       return false;
     } finally {
       _setLoading(false);
     }
   }
 
-  // Métodos auxiliares
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();

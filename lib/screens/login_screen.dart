@@ -1,3 +1,4 @@
+import 'package:fiap_farms/screens/change_password_screen.dart';
 import 'package:fiap_farms/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -84,7 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 20.0),
               ],
             ),
           ),
@@ -100,12 +100,17 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (authController.isAuthenticated && mounted) {
-      // Verificar se é o primeiro login
-      final currentUser = authController.currentUser;
-      if (currentUser!.firstLogin == true) {
-        Navigator.pushReplacementNamed(context, Routes.changePassword);
+      // Aguarda a conclusão de qualquer operação pendente
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (authController.currentUser?.firstLogin == true) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => ChangePasswordScreen(isFirstLogin: true),
+          ),
+        );
       } else {
-        Navigator.pushReplacementNamed(context, Routes.dashboard);
+        Navigator.of(context).pushReplacementNamed(Routes.dashboard);
       }
     }
   }
