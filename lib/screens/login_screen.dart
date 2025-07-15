@@ -1,3 +1,4 @@
+import 'package:fiap_farms/screens/change_password_screen.dart';
 import 'package:fiap_farms/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F3FC), // Light purple background
+      backgroundColor: const Color(0xFFF7F3FC),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30.0),
         child: Center(
@@ -49,7 +50,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   isRequired: true,
                 ),
                 const SizedBox(height: 20.0),
-                // Password TextField
                 CustomTextField.large(
                   controller: _passwordController,
                   labelText: 'Senha',
@@ -61,7 +61,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   isRequired: true,
                 ),
                 const SizedBox(height: 20.0),
-                // Login Button
                 Consumer<AuthController>(
                   builder: (context, authController, child) {
                     return Column(
@@ -74,7 +73,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                         const SizedBox(height: 10.0),
-                        // Error Message Display
                         if (authController.errorMessage.isNotEmpty)
                           Text(
                             authController.errorMessage,
@@ -87,7 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 20.0),
               ],
             ),
           ),
@@ -96,15 +93,24 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _login(AuthController authController) async {
+  Future<void> _login(AuthController authController) async {
     await authController.signIn(
       _emailController.text,
       _passwordController.text,
     );
 
-    if (authController.isAuthenticated) {
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, Routes.dashboard);
+    if (authController.isAuthenticated && mounted) {
+      // Aguarda a conclusão de qualquer operação pendente
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (authController.currentUser?.firstLogin == true) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => ChangePasswordScreen(isFirstLogin: true),
+          ),
+        );
+      } else {
+        Navigator.of(context).pushReplacementNamed(Routes.dashboard);
       }
     }
   }

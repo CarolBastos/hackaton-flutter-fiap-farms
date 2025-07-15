@@ -1,3 +1,5 @@
+import 'package:fiap_farms/screens/change_password_screen.dart';
+import 'package:fiap_farms/screens/register_screen.dart';
 import 'package:fiap_farms/screens/sales_dashboard.dart';
 import 'package:fiap_farms/screens/login_screen.dart';
 import 'package:fiap_farms/screens/add_product_screen.dart';
@@ -58,6 +60,8 @@ class MyApp extends StatelessWidget {
         Routes.productionDashboard: (context) => const ProductionDashboard(),
         Routes.addProduction: (context) => const AddProductionScreen(),
         Routes.inventorySales: (context) => const InventorySalesScreen(),
+        Routes.adminRegister: (context) => const AdminRegisterScreen(),
+        Routes.changePassword: (context) => const ChangePasswordScreen(),
       },
     );
   }

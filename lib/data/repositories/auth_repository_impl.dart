@@ -24,17 +24,24 @@ class AuthRepositoryImpl implements AuthRepository {
       if (userCredential.user == null) {
         throw Exception('Falha na autenticação');
       }
-      final user = User.fromFirebase(userCredential.user!);
 
-      // Salva os dados do usuário na collection 'users'
-      await _firestore.collection('users').doc(user.id).set({
-        'email': user.email,
-        'displayName': user.name ?? '',
-        'createdAt': FieldValue.serverTimestamp(),
-        'role': 'membro',
-      }, SetOptions(merge: true));
+      // Obter dados adicionais do Firestore
+      final userDoc = await _firestore
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .get();
 
-      return user;
+      // Criar objeto User com dados do Firestore
+      return User(
+        id: userCredential.user!.uid,
+        email: userCredential.user!.email ?? '',
+        name:
+            userDoc.data()?['displayName'] ??
+            userCredential.user!.displayName ??
+            '',
+        role: userDoc.data()?['role'] ?? 'admin',
+        firstLogin: userDoc.data()?['firstLogin'] ?? true,
+      );
     } on firebase.FirebaseAuthException catch (e) {
       switch (e.code) {
         case 'user-not-found':
@@ -52,6 +59,62 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<User> registerUser({
+    required String name,
+    required String email,
+    required String password,
+    required String role,
+  }) async {
+    try {
+      // 1. Criar usuário no Firebase Authentication
+      final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      if (userCredential.user == null) {
+        throw Exception('Falha no registro do usuário');
+      }
+
+      // 2. Criar objeto User com os dados fornecidos
+      final user = User(
+        id: userCredential.user!.uid,
+        email: email,
+        name: name,
+        role: role,
+        firstLogin: true,
+      );
+
+      // 3. Salvar informações adicionais no Firestore
+      await _firestore.collection('users').doc(user.id).set({
+        'email': user.email,
+        'displayName': user.name,
+        'createdAt': FieldValue.serverTimestamp(),
+        'role': user.role,
+      });
+
+      return user;
+    } on firebase.FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'email-already-in-use':
+          throw Exception('Email já está em uso');
+        case 'invalid-email':
+          throw Exception('Email inválido');
+        case 'operation-not-allowed':
+          throw Exception('Operação não permitida');
+        case 'weak-password':
+          throw Exception('Senha fraca (mínimo 6 caracteres)');
+        default:
+          throw Exception('Erro no registro: ${e.message}');
+      }
+    } on FirebaseException catch (e) {
+      throw Exception('Erro ao salvar dados do usuário: ${e.message}');
+    } catch (e) {
+      throw Exception('Erro desconhecido: $e');
+    }
+  }
+
+  @override
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
   }
@@ -61,6 +124,52 @@ class AuthRepositoryImpl implements AuthRepository {
     final firebaseUser = _firebaseAuth.currentUser;
     if (firebaseUser == null) return null;
 
-    return User.fromFirebase(firebaseUser);
+    // Obter dados adicionais do Firestore
+    final userDoc = await _firestore
+        .collection('users')
+        .doc(firebaseUser.uid)
+        .get();
+
+    return User(
+      id: firebaseUser.uid,
+      email: firebaseUser.email ?? '',
+      name: userDoc.data()?['displayName'] ?? firebaseUser.displayName ?? '',
+      role: userDoc.data()?['role'] ?? 'admin',
+      firstLogin: userDoc.data()?['firstLogin'] ?? true,
+    );
+  }
+
+  @override
+  Future<bool> changePassword({
+    String? currentPassword,
+    required String newPassword,
+    bool isFirstLogin = false,
+  }) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) throw Exception('Usuário não autenticado');
+
+      if (!isFirstLogin && currentPassword != null) {
+        final credential = firebase.EmailAuthProvider.credential(
+          email: user.email!,
+          password: currentPassword,
+        );
+        await user.reauthenticateWithCredential(credential);
+      }
+
+      await user.updatePassword(newPassword);
+
+      // Atualiza o firstLogin no Firestore se for primeiro login
+      if (isFirstLogin) {
+        await _firestore.collection('users').doc(user.uid).update({
+          'firstLogin': false,
+          'lastPasswordChange': FieldValue.serverTimestamp(),
+        });
+      }
+
+      return true;
+    } catch (e) {
+      throw Exception('Erro ao alterar senha: ${e.toString()}');
+    }
   }
 }

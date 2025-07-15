@@ -1,19 +1,28 @@
+import 'package:fiap_farms/domain/entities/register_user.dart';
+import 'package:fiap_farms/domain/entities/user.dart';
+import 'package:fiap_farms/domain/usecases/auth_usecases.dart';
+import 'package:fiap_farms/domain/usecases/register_usecase.dart';
+import 'package:fiap_farms/domain/usecases/change_password_usecase.dart';
 import 'package:flutter/material.dart';
-import '../../domain/entities/user.dart';
-import '../../domain/usecases/auth_usecases.dart';
 
 class AuthController extends ChangeNotifier {
   final SignInUseCase _signInUseCase;
   final SignOutUseCase _signOutUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
+  final RegisterUserUseCase _registerUserUseCase;
+  final ChangePasswordUseCase _changePasswordUseCase;
 
   AuthController({
     required SignInUseCase signInUseCase,
     required SignOutUseCase signOutUseCase,
     required GetCurrentUserUseCase getCurrentUserUseCase,
+    required RegisterUserUseCase registerUserUseCase,
+    required ChangePasswordUseCase changePasswordUseCase,
   }) : _signInUseCase = signInUseCase,
        _signOutUseCase = signOutUseCase,
-       _getCurrentUserUseCase = getCurrentUserUseCase;
+       _getCurrentUserUseCase = getCurrentUserUseCase,
+       _registerUserUseCase = registerUserUseCase,
+       _changePasswordUseCase = changePasswordUseCase;
 
   User? _currentUser;
   bool _isLoading = false;
@@ -29,10 +38,11 @@ class AuthController extends ChangeNotifier {
     _clearError();
 
     try {
-      _currentUser = await _signInUseCase.execute(email, password);
+      final user = await _signInUseCase.execute(email, password);
+      _currentUser = user;
       notifyListeners();
     } catch (e) {
-      _setError(e.toString());
+      setError(e.toString());
     } finally {
       _setLoading(false);
     }
@@ -46,7 +56,7 @@ class AuthController extends ChangeNotifier {
       _currentUser = null;
       notifyListeners();
     } catch (e) {
-      _setError(e.toString());
+      setError(e.toString());
     } finally {
       _setLoading(false);
     }
@@ -57,7 +67,77 @@ class AuthController extends ChangeNotifier {
       _currentUser = await _getCurrentUserUseCase.execute();
       notifyListeners();
     } catch (e) {
-      _setError(e.toString());
+      setError(e.toString());
+    }
+  }
+
+  Future<void> registerUser({
+    required String name,
+    required String email,
+    required String password,
+    required String role,
+  }) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      if (password.length < 6) {
+        throw Exception('A senha deve ter pelo menos 6 caracteres');
+      }
+
+      final params = RegisterUserParams(
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+      );
+
+      _currentUser = await _registerUserUseCase.execute(params);
+      notifyListeners();
+    } catch (e) {
+      setError(e.toString());
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> changePassword({
+    String? currentPassword,
+    required String newPassword,
+    bool isFirstLogin = false,
+  }) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      if (newPassword.length < 6) {
+        throw Exception('A senha deve ter pelo menos 6 caracteres');
+      }
+
+      final success = await _changePasswordUseCase.execute(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+        isFirstLogin: isFirstLogin,
+      );
+
+      if (success) {
+        // Atualiza o estado do usuário
+        if (isFirstLogin) {
+          _currentUser = _currentUser?.copyWith(firstLogin: false);
+        }
+        // Força uma nova verificação do usuário
+        await _getCurrentUserUseCase.execute().then((user) {
+          _currentUser = user;
+          notifyListeners();
+        });
+      }
+
+      return success;
+    } catch (e) {
+      setError('Erro ao alterar senha: ${e.toString()}');
+      return false;
+    } finally {
+      _setLoading(false);
     }
   }
 
@@ -66,7 +146,7 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _setError(String error) {
+  void setError(String error) {
     _errorMessage = error;
     notifyListeners();
   }
