@@ -6,13 +6,15 @@ class GoalStatistics {
   final int plannedCount;
   final int activeCount;
   final int completedCount;
-  final int failedCount;
+  final int canceledCount;
+  final int pendingCount;
 
   GoalStatistics({
     required this.plannedCount,
     required this.activeCount,
     required this.completedCount,
-    required this.failedCount,
+    required this.canceledCount,
+    required this.pendingCount,
   });
 }
 
@@ -23,8 +25,6 @@ class GoalController extends ChangeNotifier {
   final UpdateGoalUseCase _updateGoalUseCase;
   final DeleteGoalUseCase _deleteGoalUseCase;
   final GetGoalsByTypeUseCase _getGoalsByTypeUseCase;
-  final GetActiveGoalsUseCase _getActiveGoalsUseCase;
-  final GetGoalsByStatusUseCase _getGoalsByStatusUseCase;
   final UpdateGoalProgressUseCase _updateGoalProgressUseCase;
   final CompleteGoalUseCase _completeGoalUseCase;
 
@@ -35,7 +35,6 @@ class GoalController extends ChangeNotifier {
     required UpdateGoalUseCase updateGoalUseCase,
     required DeleteGoalUseCase deleteGoalUseCase,
     required GetGoalsByTypeUseCase getGoalsByTypeUseCase,
-    required GetActiveGoalsUseCase getActiveGoalsUseCase,
     required GetGoalsByStatusUseCase getGoalsByStatusUseCase,
     required UpdateGoalProgressUseCase updateGoalProgressUseCase,
     required CompleteGoalUseCase completeGoalUseCase,
@@ -45,8 +44,6 @@ class GoalController extends ChangeNotifier {
        _updateGoalUseCase = updateGoalUseCase,
        _deleteGoalUseCase = deleteGoalUseCase,
        _getGoalsByTypeUseCase = getGoalsByTypeUseCase,
-       _getActiveGoalsUseCase = getActiveGoalsUseCase,
-       _getGoalsByStatusUseCase = getGoalsByStatusUseCase,
        _updateGoalProgressUseCase = updateGoalProgressUseCase,
        _completeGoalUseCase = completeGoalUseCase;
 
@@ -65,36 +62,15 @@ class GoalController extends ChangeNotifier {
   String get selectedTypeFilter => _selectedTypeFilter;
 
   Future<void> createGoal(Goal goal) async {
-    print('[GoalController] Iniciando criação de meta...');
     _setLoading(true);
     _clearError();
 
     try {
-      // Validação dos campos obrigatórios
-      if (goal.name.isEmpty) {
-        throw Exception('O nome da meta é obrigatório');
-      }
-      if (goal.targetValue <= 0) {
-        throw Exception('O valor alvo deve ser maior que zero');
-      }
-      if (goal.startDate.isAfter(goal.endDate)) {
-        throw Exception('A data de início não pode ser após a data de término');
-      }
-      if (goal.createdBy.isEmpty) {
-        throw Exception('O criador da meta não está definido');
-      }
-
-      print('[GoalController] Campos validados, chamando use case...');
       final newGoal = await _createGoalUseCase.execute(goal);
-      
-      print('[GoalController] Meta criada no repositório, atualizando estado local...');
       _goals.insert(0, newGoal);
       _filteredGoals = List.from(_goals);
       notifyListeners();
-      
-      print('[GoalController] Meta criada com sucesso!');
     } catch (e) {
-      print('[GoalController] Erro ao criar meta: $e');
       _setError(e.toString());
       rethrow;
     } finally {
@@ -108,7 +84,7 @@ class GoalController extends ChangeNotifier {
 
     try {
       _goals = await _getGoalsUseCase.execute();
-      _filteredGoals = _goals;
+      _filteredGoals = List.from(_goals);
       _selectedStatusFilter = '';
       _selectedTypeFilter = '';
       notifyListeners();
@@ -119,6 +95,68 @@ class GoalController extends ChangeNotifier {
     }
   }
 
+  Future<void> loadGoalsByStatus(String status) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      if (status.isEmpty) {
+        _filteredGoals = List.from(_goals);
+      } else {
+        _filteredGoals = _goals.where((goal) => goal.status == status).toList();
+      }
+      _selectedStatusFilter = status;
+      notifyListeners();
+    } catch (e) {
+      _setError(e.toString());
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> clearStatusFilter() async {
+    _selectedStatusFilter = '';
+    _filteredGoals = List.from(_goals);
+    notifyListeners();
+  }
+
+  GoalStatistics getGoalStatistics(DateTime now) {
+    int planned = 0;
+    int active = 0;
+    int completed = 0;
+    int canceled = 0;
+    int pending = 0;
+
+    for (final goal in _goals) {
+      switch (goal.status) {
+        case 'planejada':
+          planned++;
+          break;
+        case 'ativa':
+          active++;
+          break;
+        case 'atingida':
+          completed++;
+          break;
+        case 'cancelada':
+          canceled++;
+          break;
+        case 'pendente':
+          pending++;
+          break;
+      }
+    }
+
+    return GoalStatistics(
+      plannedCount: planned,
+      activeCount: active,
+      completedCount: completed,
+      canceledCount: canceled,
+      pendingCount: pending,
+    );
+  }
+
+  // Outros métodos permanecem iguais...
   Future<void> getGoalById(String id) async {
     _setLoading(true);
     _clearError();
@@ -188,36 +226,6 @@ class GoalController extends ChangeNotifier {
     }
   }
 
-  Future<void> loadActiveGoals() async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      _filteredGoals = await _getActiveGoalsUseCase.execute();
-      _selectedStatusFilter = 'active';
-      notifyListeners();
-    } catch (e) {
-      _setError(e.toString());
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  Future<void> loadGoalsByStatus(String status) async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      _filteredGoals = await _getGoalsByStatusUseCase.execute(status);
-      _selectedStatusFilter = status;
-      notifyListeners();
-    } catch (e) {
-      _setError(e.toString());
-    } finally {
-      _setLoading(false);
-    }
-  }
-
   Future<void> updateGoalProgress(String goalId, double newValue) async {
     _setLoading(true);
     _clearError();
@@ -262,39 +270,6 @@ class GoalController extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
-  }
-
-  GoalStatistics getGoalStatistics(DateTime now) {
-    int planned = 0;
-    int active = 0;
-    int completed = 0;
-    int failed = 0;
-
-    for (final goal in _goals) {
-      if (goal.currentValue >= goal.targetValue) {
-        completed++;
-      } else if (now.isBefore(goal.startDate)) {
-        planned++;
-      } else if (now.isAfter(goal.endDate)) {
-        failed++;
-      } else {
-        active++;
-      }
-    }
-
-    return GoalStatistics(
-      plannedCount: planned,
-      activeCount: active,
-      completedCount: completed,
-      failedCount: failed,
-    );
-  }
-
-  Future<void> clearStatusFilter() async {
-    _selectedStatusFilter = '';
-    _selectedTypeFilter = '';
-    _filteredGoals = _goals;
-    notifyListeners();
   }
 
   void _setLoading(bool loading) {

@@ -30,7 +30,13 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
 
   final List<String> _types = ['producao', 'vendas'];
 
-  final List<String> _statuses = ['ativa', 'atingida', 'cancelada', 'pendente'];
+  final List<String> _statuses = [
+    'ativa',
+    'atingida',
+    'cancelada',
+    'pendente',
+    'planejada',
+  ];
 
   final List<String> _units = [
     'kg',

@@ -102,14 +102,20 @@ class DependencyInjection {
   // Goal Use Cases
   CreateGoalUseCase get createGoalUseCase => CreateGoalUseCase(goalRepository);
   GetGoalsUseCase get getGoalsUseCase => GetGoalsUseCase(goalRepository);
-  GetGoalByIdUseCase get getGoalByIdUseCase => GetGoalByIdUseCase(goalRepository);
+  GetGoalByIdUseCase get getGoalByIdUseCase =>
+      GetGoalByIdUseCase(goalRepository);
   UpdateGoalUseCase get updateGoalUseCase => UpdateGoalUseCase(goalRepository);
   DeleteGoalUseCase get deleteGoalUseCase => DeleteGoalUseCase(goalRepository);
-  GetGoalsByTypeUseCase get getGoalsByTypeUseCase => GetGoalsByTypeUseCase(goalRepository);
-  GetActiveGoalsUseCase get getActiveGoalsUseCase => GetActiveGoalsUseCase(goalRepository);
-  GetGoalsByStatusUseCase get getGoalsByStatusUseCase => GetGoalsByStatusUseCase(goalRepository);
-  UpdateGoalProgressUseCase get updateGoalProgressUseCase => UpdateGoalProgressUseCase(goalRepository);
-  CompleteGoalUseCase get completeGoalUseCase => CompleteGoalUseCase(goalRepository);
+  GetGoalsByTypeUseCase get getGoalsByTypeUseCase =>
+      GetGoalsByTypeUseCase(goalRepository);
+  GetActiveGoalsUseCase get getActiveGoalsUseCase =>
+      GetActiveGoalsUseCase(goalRepository);
+  GetGoalsByStatusUseCase get getGoalsByStatusUseCase =>
+      GetGoalsByStatusUseCase(goalRepository);
+  UpdateGoalProgressUseCase get updateGoalProgressUseCase =>
+      UpdateGoalProgressUseCase(goalRepository);
+  CompleteGoalUseCase get completeGoalUseCase =>
+      CompleteGoalUseCase(goalRepository);
 
   // Controllers
   AuthController get authController => AuthController(
@@ -149,17 +155,15 @@ class DependencyInjection {
     removeFromInventoryUseCase: removeFromInventoryUseCase,
   );
 
-   GoalController get goalController => GoalController(
-        createGoalUseCase: createGoalUseCase,
-        getGoalsUseCase: getGoalsUseCase,
-        getGoalByIdUseCase: getGoalByIdUseCase,
-        updateGoalUseCase: updateGoalUseCase,
-        deleteGoalUseCase: deleteGoalUseCase,
-        getGoalsByTypeUseCase: getGoalsByTypeUseCase,
-        getActiveGoalsUseCase: getActiveGoalsUseCase,
-        getGoalsByStatusUseCase: getGoalsByStatusUseCase,
-        updateGoalProgressUseCase: updateGoalProgressUseCase,
-        completeGoalUseCase: completeGoalUseCase,
-      );
+  GoalController get goalController => GoalController(
+    createGoalUseCase: createGoalUseCase,
+    getGoalsUseCase: getGoalsUseCase,
+    getGoalByIdUseCase: getGoalByIdUseCase,
+    updateGoalUseCase: updateGoalUseCase,
+    deleteGoalUseCase: deleteGoalUseCase,
+    getGoalsByTypeUseCase: getGoalsByTypeUseCase,
+    getGoalsByStatusUseCase: getGoalsByStatusUseCase,
+    updateGoalProgressUseCase: updateGoalProgressUseCase,
+    completeGoalUseCase: completeGoalUseCase,
+  );
 }
-

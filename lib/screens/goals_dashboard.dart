@@ -2,6 +2,7 @@ import 'package:fiap_farms/domain/entities/goals.dart';
 import 'package:fiap_farms/presentation/controllers/goals_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../utils/app_colors.dart';
 import '../routes.dart';
 import 'components/menu_drawer.dart';
@@ -19,7 +20,12 @@ class _GoalsDashboardState extends State<GoalsDashboard> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<GoalController>(context, listen: false).loadGoals();
+      final controller = Provider.of<GoalController>(context, listen: false);
+      if (controller.goals.isEmpty) {
+        controller.loadGoals();
+      } else if (controller.selectedStatusFilter.isNotEmpty) {
+        controller.loadGoalsByStatus(controller.selectedStatusFilter);
+      }
     });
   }
 
@@ -29,9 +35,7 @@ class _GoalsDashboardState extends State<GoalsDashboard> {
       appBar: DashboardAppBar(title: 'Dashboard de Metas'),
       drawer: MenuDrawer(currentRoute: Routes.goalsDashboard),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, Routes.addGoal);
-        },
+        onPressed: () => Navigator.pushNamed(context, Routes.addGoal),
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),
       ),
@@ -50,22 +54,18 @@ class _GoalsDashboardState extends State<GoalsDashboard> {
             );
           }
 
+          final stats = goalController.getGoalStatistics(DateTime.now());
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 16),
-
-                // Cards de Status
-                _buildStatusCards(goalController),
+                _buildStatusCards(stats),
                 const SizedBox(height: 24),
-
-                // Filtros
                 _buildStatusFilters(goalController),
                 const SizedBox(height: 16),
-
-                // Lista de Metas
                 _buildGoalsList(goalController),
               ],
             ),
@@ -75,10 +75,7 @@ class _GoalsDashboardState extends State<GoalsDashboard> {
     );
   }
 
-  Widget _buildStatusCards(GoalController controller) {
-    final now = DateTime.now();
-    final stats = controller.getGoalStatistics(now);
-
+  Widget _buildStatusCards(GoalStatistics stats) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -109,11 +106,18 @@ class _GoalsDashboardState extends State<GoalsDashboard> {
           emoji: '✅',
         ),
         _StatusCard(
-          title: 'Não Atingidas',
-          count: stats.failedCount,
-          icon: Icons.warning,
+          title: 'Canceladas',
+          count: stats.canceledCount,
+          icon: Icons.cancel,
           color: AppColors.statusNaoAtingido,
           emoji: '❌',
+        ),
+        _StatusCard(
+          title: 'Pendentes',
+          count: stats.pendingCount,
+          icon: Icons.pending,
+          color: AppColors.statusNaoAtingido,
+          emoji: '⏳',
         ),
       ],
     );
@@ -122,10 +126,11 @@ class _GoalsDashboardState extends State<GoalsDashboard> {
   Widget _buildStatusFilters(GoalController controller) {
     final statuses = [
       {'name': 'Todos', 'value': ''},
-      {'name': 'Planejadas', 'value': 'planned'},
-      {'name': 'Ativas', 'value': 'active'},
-      {'name': 'Atingidas', 'value': 'completed'},
-      {'name': 'Não Atingidas', 'value': 'failed'},
+      {'name': 'Planejadas', 'value': 'planejada'},
+      {'name': 'Ativas', 'value': 'ativa'},
+      {'name': 'Atingidas', 'value': 'atingida'},
+      {'name': 'Canceladas', 'value': 'cancelada'},
+      {'name': 'Pendentes', 'value': 'pendente'},
     ];
 
     return Column(
@@ -144,20 +149,19 @@ class _GoalsDashboardState extends State<GoalsDashboard> {
                   controller.selectedStatusFilter == status['value'];
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: FilterChip(
+                child: ChoiceChip(
                   label: Text(status['name']!),
                   selected: isSelected,
-                  onSelected: (selected) async {
+                  onSelected: (selected) {
                     if (selected) {
-                      if (status['value']!.isEmpty) {
-                        await controller.clearStatusFilter();
-                      } else {
-                        await controller.loadGoalsByStatus(status['value']!);
-                      }
+                      controller.loadGoalsByStatus(status['value']!);
                     }
                   },
                   backgroundColor: AppColors.greyLight,
                   selectedColor: AppColors.primary.withOpacity(0.2),
+                  labelStyle: TextStyle(
+                    color: isSelected ? AppColors.primary : Colors.black,
+                  ),
                 ),
               );
             }).toList(),
@@ -174,11 +178,7 @@ class _GoalsDashboardState extends State<GoalsDashboard> {
       return const Center(
         child: Column(
           children: [
-            Icon(
-              Icons.flag_outlined,
-              size: 64,
-              color: AppColors.textLight,
-            ),
+            Icon(Icons.flag_outlined, size: 64, color: AppColors.textLight),
             SizedBox(height: 16),
             Text(
               'Nenhuma meta encontrada',
@@ -271,11 +271,10 @@ class _GoalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final status = _getGoalStatus(goal, now);
-    final statusColor = _getStatusColor(status);
+    final statusColor = _getStatusColor(goal.status);
     final progress = goal.currentValue / goal.targetValue;
-    
+    final unit = _getUnitDisplay(goal.targetUnit);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -307,10 +306,10 @@ class _GoalCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(_getStatusEmoji(status)),
+                      Text(_getStatusEmoji(goal.status)),
                       const SizedBox(width: 4),
                       Text(
-                        _getStatusText(status),
+                        _capitalize(goal.status),
                         style: TextStyle(
                           fontSize: 12,
                           color: statusColor,
@@ -324,17 +323,14 @@ class _GoalCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              goal.name,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-              ),
+              'Tipo: ${_capitalize(goal.type)}',
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 12),
             LinearProgressIndicator(
               value: progress > 1 ? 1 : progress,
               backgroundColor: AppColors.greyLight,
-              color: progress >= 1 
+              color: goal.status == 'atingida'
                   ? AppColors.statusAtingido
                   : AppColors.primary,
               minHeight: 8,
@@ -344,11 +340,11 @@ class _GoalCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'R\$ ${goal.currentValue.toStringAsFixed(2)}',
+                  '${goal.currentValue.toStringAsFixed(2)} $unit',
                   style: const TextStyle(fontSize: 14),
                 ),
                 Text(
-                  'R\$ ${goal.targetValue.toStringAsFixed(2)}',
+                  '${goal.targetValue.toStringAsFixed(2)} $unit',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -388,6 +384,27 @@ class _GoalCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (goal.status == 'atingida' && goal.achievedAt != null) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(
+                    Icons.celebration,
+                    size: 16,
+                    color: AppColors.statusAtingido,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Atingida em: ${_formatDate(goal.achievedAt!)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.statusAtingido,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -395,68 +412,64 @@ class _GoalCard extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+    return DateFormat('dd/MM/yyyy').format(date);
   }
 
-  GoalStatus _getGoalStatus(Goal goal, DateTime now) {
-    if (goal.currentValue >= goal.targetValue) {
-      return GoalStatus.completed;
-    }
-    
-    if (now.isBefore(goal.startDate)) {
-      return GoalStatus.planned;
-    }
-    
-    if (now.isAfter(goal.endDate)) {
-      return GoalStatus.failed;
-    }
-    
-    return GoalStatus.active;
+  String _capitalize(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1);
   }
 
-  Color _getStatusColor(GoalStatus status) {
+  String _getUnitDisplay(String unit) {
+    switch (unit) {
+      case 'kg':
+        return 'kg';
+      case 'unidade':
+        return 'un';
+      case 'litro':
+        return 'L';
+      case 'saca':
+        return 'sc';
+      case 'caixa':
+        return 'cx';
+      case 'reais':
+        return 'R\$';
+      default:
+        return unit;
+    }
+  }
+
+  Color _getStatusColor(String status) {
     switch (status) {
-      case GoalStatus.planned:
+      case 'planejada':
         return AppColors.statusPlanejado2;
-      case GoalStatus.active:
+      case 'ativa':
         return AppColors.statusAtivo;
-      case GoalStatus.completed:
+      case 'atingida':
         return AppColors.statusAtingido;
-      case GoalStatus.failed:
+      case 'cancelada':
         return AppColors.statusNaoAtingido;
+      case 'pendente':
+        return AppColors.statusNaoAtingido;
+      default:
+        return AppColors.primary;
     }
   }
 
-  String _getStatusEmoji(GoalStatus status) {
+  String _getStatusEmoji(String status) {
     switch (status) {
-      case GoalStatus.planned:
+      case 'planejada':
         return '📅';
-      case GoalStatus.active:
+      case 'ativa':
         return '📈';
-      case GoalStatus.completed:
+      case 'atingida':
         return '✅';
-      case GoalStatus.failed:
+      case 'cancelada':
         return '❌';
+      case 'pendente':
+        return '⏳';
+      default:
+        return '🏷';
     }
   }
-
-  String _getStatusText(GoalStatus status) {
-    switch (status) {
-      case GoalStatus.planned:
-        return 'Planejada';
-      case GoalStatus.active:
-        return 'Ativa';
-      case GoalStatus.completed:
-        return 'Atingida';
-      case GoalStatus.failed:
-        return 'Não Atingida';
-    }
-  }
-}
-
-enum GoalStatus {
-  planned,
-  active,
-  completed,
-  failed,
 }
