@@ -64,93 +64,39 @@ class GoalController extends ChangeNotifier {
   String get selectedStatusFilter => _selectedStatusFilter;
   String get selectedTypeFilter => _selectedTypeFilter;
 
-  // Métodos existentes permanecem iguais...
-
-  Future<void> updateGoalProgress(String goalId, double newValue) async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      // Atualiza no repositório
-      await _updateGoalProgressUseCase.execute(goalId, newValue);
-
-      // Atualiza localmente criando uma nova instância
-      final index = _goals.indexWhere((g) => g.id == goalId);
-      if (index != -1) {
-        final oldGoal = _goals[index];
-        final updatedGoal = Goal(
-          id: oldGoal.id,
-          name: oldGoal.name,
-          targetValue: oldGoal.targetValue,
-          currentValue: newValue, // Novo valor
-          startDate: oldGoal.startDate,
-          endDate: oldGoal.endDate,
-          type: oldGoal.type,
-          achievedAt: oldGoal.achievedAt,
-          createdAt: oldGoal.createdAt,
-          createdBy: oldGoal.createdBy,
-          entityId: oldGoal.entityId,
-          status: oldGoal.status,
-          targetUnit: oldGoal.targetUnit,
-        );
-        _goals[index] = updatedGoal;
-        notifyListeners();
-      }
-    } catch (e) {
-      _setError(e.toString());
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  Future<void> completeGoal(String goalId) async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      // Atualiza no repositório
-      await _completeGoalUseCase.execute(goalId);
-
-      // Atualiza localmente criando uma nova instância
-      final index = _goals.indexWhere((g) => g.id == goalId);
-      if (index != -1) {
-        final oldGoal = _goals[index];
-        final updatedGoal = Goal(
-          id: oldGoal.id,
-          name: oldGoal.name,
-          targetValue: oldGoal.targetValue,
-          currentValue: oldGoal.targetValue, // Define como valor completo
-          startDate: oldGoal.startDate,
-          endDate: oldGoal.endDate,
-          type: oldGoal.type,
-          achievedAt: oldGoal.achievedAt,
-          createdAt: oldGoal.createdAt,
-          createdBy: oldGoal.createdBy,
-          entityId: oldGoal.entityId,
-          status: oldGoal.status,
-          targetUnit: oldGoal.targetUnit,
-        );
-        _goals[index] = updatedGoal;
-        notifyListeners();
-      }
-    } catch (e) {
-      _setError(e.toString());
-    } finally {
-      _setLoading(false);
-    }
-  }
-
   Future<void> createGoal(Goal goal) async {
+    print('[GoalController] Iniciando criação de meta...');
     _setLoading(true);
     _clearError();
 
     try {
+      // Validação dos campos obrigatórios
+      if (goal.name.isEmpty) {
+        throw Exception('O nome da meta é obrigatório');
+      }
+      if (goal.targetValue <= 0) {
+        throw Exception('O valor alvo deve ser maior que zero');
+      }
+      if (goal.startDate.isAfter(goal.endDate)) {
+        throw Exception('A data de início não pode ser após a data de término');
+      }
+      if (goal.createdBy.isEmpty) {
+        throw Exception('O criador da meta não está definido');
+      }
+
+      print('[GoalController] Campos validados, chamando use case...');
       final newGoal = await _createGoalUseCase.execute(goal);
+      
+      print('[GoalController] Meta criada no repositório, atualizando estado local...');
       _goals.insert(0, newGoal);
-      _filteredGoals = _goals;
+      _filteredGoals = List.from(_goals);
       notifyListeners();
+      
+      print('[GoalController] Meta criada com sucesso!');
     } catch (e) {
+      print('[GoalController] Erro ao criar meta: $e');
       _setError(e.toString());
+      rethrow;
     } finally {
       _setLoading(false);
     }
@@ -265,6 +211,52 @@ class GoalController extends ChangeNotifier {
       _filteredGoals = await _getGoalsByStatusUseCase.execute(status);
       _selectedStatusFilter = status;
       notifyListeners();
+    } catch (e) {
+      _setError(e.toString());
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> updateGoalProgress(String goalId, double newValue) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      await _updateGoalProgressUseCase.execute(goalId, newValue);
+
+      final index = _goals.indexWhere((g) => g.id == goalId);
+      if (index != -1) {
+        final oldGoal = _goals[index];
+        final updatedGoal = oldGoal.copyWith(currentValue: newValue);
+        _goals[index] = updatedGoal;
+        notifyListeners();
+      }
+    } catch (e) {
+      _setError(e.toString());
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> completeGoal(String goalId) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      await _completeGoalUseCase.execute(goalId);
+
+      final index = _goals.indexWhere((g) => g.id == goalId);
+      if (index != -1) {
+        final oldGoal = _goals[index];
+        final updatedGoal = oldGoal.copyWith(
+          currentValue: oldGoal.targetValue,
+          status: 'atingida',
+          achievedAt: DateTime.now(),
+        );
+        _goals[index] = updatedGoal;
+        notifyListeners();
+      }
     } catch (e) {
       _setError(e.toString());
     } finally {

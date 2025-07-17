@@ -28,20 +28,9 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
   DateTime _endDate = DateTime.now().add(const Duration(days: 30));
   DateTime? _achievedAt;
 
-  final List<String> _types = [
-    'producao',
-    'vendas',
-    'qualidade',
-    'eficiencia',
-    'outros'
-  ];
+  final List<String> _types = ['producao', 'vendas'];
 
-  final List<String> _statuses = [
-    'ativa',
-    'atingida',
-    'cancelada',
-    'pendente'
-  ];
+  final List<String> _statuses = ['ativa', 'atingida', 'cancelada', 'pendente'];
 
   final List<String> _units = [
     'kg',
@@ -49,7 +38,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
     'litro',
     'saca',
     'caixa',
-    'reais'
+    'reais',
   ];
 
   @override
@@ -93,7 +82,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
                       items: _types.map((type) {
                         return DropdownMenuItem(
                           value: type,
-                          child: Text(type),
+                          child: Text(type.capitalize()),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -121,7 +110,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
                       items: _statuses.map((status) {
                         return DropdownMenuItem(
                           value: status,
-                          child: Text(status),
+                          child: Text(status.capitalize()),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -148,7 +137,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
                       items: _units.map((unit) {
                         return DropdownMenuItem(
                           value: unit,
-                          child: Text(unit),
+                          child: Text(unit.capitalize()),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -208,7 +197,9 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
                     // Data de Início
                     ListTile(
                       title: const Text('Data de Início'),
-                      subtitle: Text(DateFormat('dd/MM/yyyy').format(_startDate)),
+                      subtitle: Text(
+                        DateFormat('dd/MM/yyyy').format(_startDate),
+                      ),
                       leading: const Icon(Icons.calendar_today),
                       onTap: () => _selectDate(context, isStartDate: true),
                     ),
@@ -227,9 +218,11 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
                     if (_selectedStatus == 'atingida')
                       ListTile(
                         title: const Text('Data de Conquista'),
-                        subtitle: Text(_achievedAt != null
-                            ? DateFormat('dd/MM/yyyy').format(_achievedAt!)
-                            : 'Selecione'),
+                        subtitle: Text(
+                          _achievedAt != null
+                              ? DateFormat('dd/MM/yyyy').format(_achievedAt!)
+                              : 'Selecione',
+                        ),
                         leading: const Icon(Icons.celebration),
                         onTap: () => _selectAchievedDate(context),
                       ),
@@ -237,7 +230,10 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
 
                     // Botão Salvar
                     CustomButton.large(
-                      onPressed: _saveGoal,
+                      onPressed: () {
+                        print('Botão Salvar pressionado');
+                        _saveGoal();
+                      },
                       text: 'Salvar Meta',
                       variant: ButtonVariant.primary,
                       isLoading: goalController.isLoading,
@@ -268,14 +264,17 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context, {required bool isStartDate}) async {
+  Future<void> _selectDate(
+    BuildContext context, {
+    required bool isStartDate,
+  }) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: isStartDate ? _startDate : _endDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-    
+
     if (picked != null) {
       setState(() {
         if (isStartDate) {
@@ -297,7 +296,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
       firstDate: _startDate,
       lastDate: _endDate,
     );
-    
+
     if (picked != null) {
       setState(() {
         _achievedAt = picked;
@@ -305,37 +304,76 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
     }
   }
 
-  void _saveGoal() async {
-    if (_formKey.currentState!.validate()) {
-      final goal = Goal(
-        name: _nameController.text.trim(),
-        type: _selectedType,
-        status: _selectedStatus,
-        targetUnit: _selectedUnit,
-        currentValue: double.tryParse(_currentValueController.text) ?? 0,
-        targetValue: double.parse(_targetValueController.text),
-        startDate: _startDate,
-        endDate: _endDate,
-        achievedAt: _selectedStatus == 'atingida' ? _achievedAt ?? DateTime.now() : null,
-        createdAt: DateTime.now(),
-        createdBy: '', // Será preenchido pelo controller
-        entityId: '', // Será preenchido conforme necessário
-      );
+  Future<void> _saveGoal() async {
+    print('Iniciando processo de salvamento da meta');
 
+    if (_formKey.currentState == null) {
+      print('Erro: FormKey.currentState é null');
+      return;
+    }
+
+    if (!_formKey.currentState!.validate()) {
+      print('Validação do formulário falhou');
+      return;
+    }
+
+    print('Criando objeto Goal...');
+    final goal = Goal(
+      name: _nameController.text.trim(),
+      type: _selectedType,
+      status: _selectedStatus,
+      targetUnit: _selectedUnit,
+      currentValue: double.tryParse(_currentValueController.text) ?? 0,
+      targetValue: double.parse(_targetValueController.text),
+      startDate: _startDate,
+      endDate: _endDate,
+      achievedAt: _selectedStatus == 'atingida'
+          ? _achievedAt ?? DateTime.now()
+          : null,
+      createdAt: DateTime.now(),
+      createdBy: 'current_user_id',
+      entityId: 'default_entity_id',
+    );
+
+    print('Objeto Goal criado: ${goal.toString()}');
+
+    try {
       final goalController = Provider.of<GoalController>(
         context,
         listen: false,
       );
+      print('Chamando GoalController.createGoal()...');
       await goalController.createGoal(goal);
 
-      if (goalController.errorMessage.isEmpty && mounted) {
+      if (mounted) {
+        if (goalController.errorMessage.isEmpty) {
+          print('Meta criada com sucesso!');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Meta cadastrada com sucesso!'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          Navigator.pop(context);
+        } else {
+          print('Erro ao criar meta: ${goalController.errorMessage}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro: ${goalController.errorMessage}'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('Erro inesperado: $e');
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Meta cadastrada com sucesso!'),
-            backgroundColor: AppColors.success,
+          SnackBar(
+            content: Text('Erro inesperado: $e'),
+            backgroundColor: AppColors.error,
           ),
         );
-        Navigator.pop(context);
       }
     }
   }
@@ -346,5 +384,11 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
     _currentValueController.dispose();
     _targetValueController.dispose();
     super.dispose();
+  }
+}
+
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }

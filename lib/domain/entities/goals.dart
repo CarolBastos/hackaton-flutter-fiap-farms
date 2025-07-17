@@ -17,7 +17,7 @@ class Goal {
 
   Goal({
     this.id,
-    required this.achievedAt,
+    this.achievedAt,
     required this.createdAt,
     required this.createdBy,
     required this.currentValue,
@@ -35,23 +35,22 @@ class Goal {
     return Goal(
       id: id,
       achievedAt: _parseDateTime(data['achievedAt']),
-      createdAt: _parseDateTime(data['createdAt']),
+      createdAt: _parseDateTime(data['createdAt'] ?? DateTime.now()),
       createdBy: data['createdBy'] ?? '',
       currentValue: _parseDouble(data['currentValue']),
-      endDate: _parseDateTime(data['endDate']),
+      endDate: _parseDateTime(data['endDate'] ?? DateTime.now()),
       entityId: data['entityId'] ?? '',
       name: data['name'] ?? '',
-      startDate: _parseDateTime(data['startDate']),
-      status: data['status'] ?? '',
-      targetUnit: data['targetUnit'] ?? '',
+      startDate: _parseDateTime(data['startDate'] ?? DateTime.now()),
+      status: data['status'] ?? 'ativa',
+      targetUnit: data['targetUnit'] ?? 'kg',
       targetValue: _parseDouble(data['targetValue']),
-      type: data['type'] ?? '',
+      type: data['type'] ?? 'producao',
     );
   }
 
   Map<String, dynamic> toFirestore() {
-    return {
-      'achievedAt': Timestamp.fromDate(achievedAt!),
+    final map = {
       'createdAt': Timestamp.fromDate(createdAt),
       'createdBy': createdBy,
       'currentValue': currentValue,
@@ -64,6 +63,13 @@ class Goal {
       'targetValue': targetValue,
       'type': type,
     };
+
+    // Campos opcionais
+    if (achievedAt != null) {
+      map['achievedAt'] = Timestamp.fromDate(achievedAt!);
+    }
+
+    return map;
   }
 
   Goal copyWith({
@@ -96,6 +102,11 @@ class Goal {
       targetValue: targetValue ?? this.targetValue,
       type: type ?? this.type,
     );
+  }
+
+  @override
+  String toString() {
+    return 'Goal{id: $id, name: $name, type: $type, status: $status, currentValue: $currentValue, targetValue: $targetValue}';
   }
 
   static double _parseDouble(dynamic value) {
