@@ -1,5 +1,9 @@
+import 'package:fiap_farms/data/repositories/goals_repository_impl.dart';
+import 'package:fiap_farms/domain/repositories/goals_repository.dart';
 import 'package:fiap_farms/domain/usecases/change_password_usecase.dart';
+import 'package:fiap_farms/domain/usecases/goals_usecases.dart';
 import 'package:fiap_farms/domain/usecases/register_usecase.dart';
+import 'package:fiap_farms/presentation/controllers/goals_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../data/repositories/auth_repository_impl.dart';
 import '../data/repositories/sales_repository_impl.dart';
@@ -35,6 +39,7 @@ class DependencyInjection {
   ProductRepository get productRepository => ProductRepositoryImpl();
   ProductionRepository get productionRepository => ProductionRepositoryImpl();
   InventoryRepository get inventoryRepository => InventoryRepositoryImpl();
+  GoalRepository get goalRepository => GoalRepositoryImpl();
 
   // Use Cases
   SignInUseCase get signInUseCase => SignInUseCase(authRepository);
@@ -94,13 +99,25 @@ class DependencyInjection {
   RemoveFromInventoryUseCase get removeFromInventoryUseCase =>
       RemoveFromInventoryUseCase(inventoryRepository);
 
+  // Goal Use Cases
+  CreateGoalUseCase get createGoalUseCase => CreateGoalUseCase(goalRepository);
+  GetGoalsUseCase get getGoalsUseCase => GetGoalsUseCase(goalRepository);
+  GetGoalByIdUseCase get getGoalByIdUseCase => GetGoalByIdUseCase(goalRepository);
+  UpdateGoalUseCase get updateGoalUseCase => UpdateGoalUseCase(goalRepository);
+  DeleteGoalUseCase get deleteGoalUseCase => DeleteGoalUseCase(goalRepository);
+  GetGoalsByTypeUseCase get getGoalsByTypeUseCase => GetGoalsByTypeUseCase(goalRepository);
+  GetActiveGoalsUseCase get getActiveGoalsUseCase => GetActiveGoalsUseCase(goalRepository);
+  GetGoalsByStatusUseCase get getGoalsByStatusUseCase => GetGoalsByStatusUseCase(goalRepository);
+  UpdateGoalProgressUseCase get updateGoalProgressUseCase => UpdateGoalProgressUseCase(goalRepository);
+  CompleteGoalUseCase get completeGoalUseCase => CompleteGoalUseCase(goalRepository);
+
   // Controllers
   AuthController get authController => AuthController(
     signInUseCase: signInUseCase,
     signOutUseCase: signOutUseCase,
     getCurrentUserUseCase: getCurrentUserUseCase,
     registerUserUseCase: getRegisterUserUseCase,
-    changePasswordUseCase: getChangePasswordUseCase, // Agora está definido
+    changePasswordUseCase: getChangePasswordUseCase,
   );
 
   ProductController get productController => ProductController(
@@ -131,4 +148,18 @@ class DependencyInjection {
     addToInventoryUseCase: addToInventoryUseCase,
     removeFromInventoryUseCase: removeFromInventoryUseCase,
   );
+
+   GoalController get goalController => GoalController(
+        createGoalUseCase: createGoalUseCase,
+        getGoalsUseCase: getGoalsUseCase,
+        getGoalByIdUseCase: getGoalByIdUseCase,
+        updateGoalUseCase: updateGoalUseCase,
+        deleteGoalUseCase: deleteGoalUseCase,
+        getGoalsByTypeUseCase: getGoalsByTypeUseCase,
+        getActiveGoalsUseCase: getActiveGoalsUseCase,
+        getGoalsByStatusUseCase: getGoalsByStatusUseCase,
+        updateGoalProgressUseCase: updateGoalProgressUseCase,
+        completeGoalUseCase: completeGoalUseCase,
+      );
 }
+

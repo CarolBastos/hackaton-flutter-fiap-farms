@@ -5,8 +5,6 @@ import '../../domain/usecases/production_usecases.dart';
 class ProductionController extends ChangeNotifier {
   final CreateProductionBatchUseCase _createProductionBatchUseCase;
   final GetProductionBatchesUseCase _getProductionBatchesUseCase;
-  final GetProductionBatchesByStatusUseCase
-  _getProductionBatchesByStatusUseCase;
   final UpdateProductionStatusUseCase _updateProductionStatusUseCase;
 
   ProductionController({
@@ -17,8 +15,6 @@ class ProductionController extends ChangeNotifier {
     required UpdateProductionStatusUseCase updateProductionStatusUseCase,
   }) : _createProductionBatchUseCase = createProductionBatchUseCase,
        _getProductionBatchesUseCase = getProductionBatchesUseCase,
-       _getProductionBatchesByStatusUseCase =
-           getProductionBatchesByStatusUseCase,
        _updateProductionStatusUseCase = updateProductionStatusUseCase;
 
   List<ProductionBatch> _productionBatches = [];

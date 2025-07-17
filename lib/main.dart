@@ -1,3 +1,5 @@
+import 'package:fiap_farms/presentation/controllers/goals_controller.dart';
+import 'package:fiap_farms/screens/add_goals_screen.dart';
 import 'package:fiap_farms/screens/change_password_screen.dart';
 import 'package:fiap_farms/screens/register_screen.dart';
 import 'package:fiap_farms/screens/sales_dashboard.dart';
@@ -6,6 +8,7 @@ import 'package:fiap_farms/screens/add_product_screen.dart';
 import 'package:fiap_farms/screens/production_dashboard.dart';
 import 'package:fiap_farms/screens/add_production_screen.dart';
 import 'package:fiap_farms/screens/inventory_sales_screen.dart';
+import 'package:fiap_farms/screens/goals_dashboard.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'routes.dart';
@@ -16,6 +19,7 @@ import 'presentation/controllers/product_controller.dart';
 import 'presentation/controllers/production_controller.dart';
 import 'presentation/controllers/sales_controller.dart';
 import 'presentation/controllers/inventory_controller.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +42,9 @@ void main() async {
         ),
         ChangeNotifierProvider<InventoryController>(
           create: (_) => di.inventoryController,
+        ),
+        ChangeNotifierProvider<GoalController>( // Novo provider
+          create: (_) => di.goalController,
         ),
       ],
       child: const MyApp(),
@@ -62,6 +69,8 @@ class MyApp extends StatelessWidget {
         Routes.inventorySales: (context) => const InventorySalesScreen(),
         Routes.adminRegister: (context) => const AdminRegisterScreen(),
         Routes.changePassword: (context) => const ChangePasswordScreen(),
+        Routes.goalsDashboard: (context) => const GoalsDashboard(),
+        Routes.addGoal: (context) => const AddGoalScreen(),
       },
     );
   }

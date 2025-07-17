@@ -7,4 +7,6 @@ class Routes {
   static const String inventorySales = '/inventory-sales';
   static const String adminRegister = '/admin-register';
   static const String changePassword = '/change-password';
+  static const String goalsDashboard = '/goals-dashboard';
+  static const String addGoal = '/add-goal';
 }
