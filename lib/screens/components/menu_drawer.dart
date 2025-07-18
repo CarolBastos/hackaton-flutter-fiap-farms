@@ -88,6 +88,17 @@ class MenuDrawer extends StatelessWidget {
           },
         ),
         ListTile(
+          leading: const Icon(Icons.agriculture, color: AppColors.primary),
+          title: const Text('Dashboard de Fazendas'),
+          selected: currentRoute == Routes.farmDashboard,
+          onTap: () {
+            Navigator.pop(context);
+            if (currentRoute != Routes.farmDashboard) {
+              Navigator.pushReplacementNamed(context, Routes.farmDashboard);
+            }
+          },
+        ),
+        ListTile(
           leading: const Icon(Icons.add_box, color: AppColors.primary),
           title: const Text('Cadastrar Produto'),
           selected: currentRoute == Routes.addProduct,

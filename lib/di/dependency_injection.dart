@@ -1,8 +1,12 @@
+import 'package:fiap_farms/data/repositories/farm_repository_impl.dart';
 import 'package:fiap_farms/data/repositories/goals_repository_impl.dart';
+import 'package:fiap_farms/domain/repositories/farm_repository.dart';
 import 'package:fiap_farms/domain/repositories/goals_repository.dart';
 import 'package:fiap_farms/domain/usecases/change_password_usecase.dart';
+import 'package:fiap_farms/domain/usecases/farm_usecases.dart';
 import 'package:fiap_farms/domain/usecases/goals_usecases.dart';
 import 'package:fiap_farms/domain/usecases/register_usecase.dart';
+import 'package:fiap_farms/presentation/controllers/farm_controller.dart';
 import 'package:fiap_farms/presentation/controllers/goals_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -35,22 +39,20 @@ class DependencyInjection {
   // Repositories
   AuthRepository get authRepository =>
       AuthRepositoryImpl(firebaseAuth: FirebaseAuth.instance);
-
   SalesRepository get salesRepository => SalesRepositoryImpl();
   ProductRepository get productRepository => ProductRepositoryImpl();
   ProductionRepository get productionRepository => ProductionRepositoryImpl();
   InventoryRepository get inventoryRepository => InventoryRepositoryImpl();
   GoalRepository get goalRepository => GoalRepositoryImpl();
+  FarmRepository get farmRepository => FarmRepositoryImpl();
 
   // Use Cases
   SignInUseCase get signInUseCase => SignInUseCase(authRepository);
   SignOutUseCase get signOutUseCase => SignOutUseCase(authRepository);
   GetCurrentUserUseCase get getCurrentUserUseCase =>
       GetCurrentUserUseCase(authRepository);
-
   RegisterUserUseCase get getRegisterUserUseCase =>
       RegisterUserUseCaseImpl(repository: authRepository);
-
   ChangePasswordUseCase get getChangePasswordUseCase =>
       ChangePasswordUseCaseImpl(repository: authRepository);
 
@@ -59,7 +61,7 @@ class DependencyInjection {
   GetTopProductsUseCase get getTopProductsUseCase =>
       GetTopProductsUseCase(salesRepository);
 
-  // Sales Record Use Cases
+  // Sales Use Cases
   CreateSalesRecordUseCase get createSalesRecordUseCase =>
       CreateSalesRecordUseCase(salesRepository);
   GetSalesRecordsUseCase get getSalesRecordsUseCase =>
@@ -116,6 +118,16 @@ class DependencyInjection {
       UpdateGoalProgressUseCase(goalRepository);
   CompleteGoalUseCase get completeGoalUseCase =>
       CompleteGoalUseCase(goalRepository);
+
+  // Farm Use Cases
+  GetFarmsUseCase get getFarmsUseCase => GetFarmsUseCase(farmRepository);
+  GetTotalProductionUseCase get getTotalProductionUseCase =>
+      GetTotalProductionUseCase(farmRepository);
+  CreateFarmUseCase get createFarmUseCase => CreateFarmUseCase(farmRepository);
+  GetFarmByIdUseCase get getFarmByIdUseCase =>
+      GetFarmByIdUseCase(farmRepository);
+  UpdateFarmUseCase get updateFarmUseCase => UpdateFarmUseCase(farmRepository);
+  DeleteFarmUseCase get deleteFarmUseCase => DeleteFarmUseCase(farmRepository);
 
   // Controllers
   AuthController get authController => AuthController(
@@ -177,4 +189,11 @@ class DependencyInjection {
     updateGoalProgressUseCase: updateGoalProgressUseCase,
     completeGoalUseCase: completeGoalUseCase,
   );
+
+  FarmController Function() get farmController =>
+      () => FarmController(
+        getFarmsUseCase: getFarmsUseCase,
+        getTotalProductionUseCase: getTotalProductionUseCase,
+        createFarmUseCase: createFarmUseCase,
+      );
 }
