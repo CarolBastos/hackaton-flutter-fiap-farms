@@ -9,8 +9,22 @@ import '../routes.dart';
 import 'components/menu_drawer.dart';
 import 'components/custom_app_bar.dart';
 
-class GoalsDashboard extends StatelessWidget {
+class GoalsDashboard extends StatefulWidget {
   const GoalsDashboard({super.key});
+
+  @override
+  State<GoalsDashboard> createState() => _GoalsDashboardState();
+}
+
+class _GoalsDashboardState extends State<GoalsDashboard> {
+  late Future<void> _initializeFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    final controller = Provider.of<GoalController>(context, listen: false);
+    _initializeFuture = controller.initializeGoalsIfNeeded();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +39,7 @@ class GoalsDashboard extends StatelessWidget {
       body: Consumer<GoalController>(
         builder: (context, controller, _) {
           return FutureBuilder<void>(
-            future: controller.initializeGoalsIfNeeded(),
+            future: _initializeFuture,
             builder: (context, snapshot) {
               if (controller.isLoading && controller.goals.isEmpty) {
                 return const Center(child: CircularProgressIndicator());
@@ -43,8 +57,15 @@ class GoalsDashboard extends StatelessWidget {
               final stats = controller.getGoalStatistics(DateTime.now());
 
               return RefreshIndicator(
-                onRefresh: controller.reloadGoals,
+                onRefresh: () async {
+                  await controller.reloadGoals();
+                  setState(() {
+                    _initializeFuture = controller
+                        .initializeGoalsIfNeeded(); // opcional
+                  });
+                },
                 child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

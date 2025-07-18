@@ -96,7 +96,6 @@ class GoalController extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _setError(e.toString());
-      rethrow;
     } finally {
       _setLoading(false);
     }
