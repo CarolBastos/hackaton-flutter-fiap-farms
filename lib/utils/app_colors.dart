@@ -23,6 +23,10 @@ class AppColors {
   static const Color info = Colors.blue;
   static const Color secondary = Colors.purple;
   static const Color danger = Colors.red;
+  static const Color statusPlanejado2 = Colors.purple;
+  static const Color statusAtivo = Colors.blue;
+  static const Color statusAtingido = Colors.green;
+  static const Color statusNaoAtingido = Colors.red;
 
   // Cores de erro e feedback
   static const Color error = Color(0xFFFF5031);

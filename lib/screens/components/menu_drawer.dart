@@ -119,7 +119,7 @@ class MenuDrawer extends StatelessWidget {
           title: const Text('Metas e Notificações'),
           onTap: () {
             Navigator.pop(context);
-            _showFeatureInDevelopment(context, 'Metas e Notificações');
+            Navigator.pushNamed(context, Routes.goalsDashboard);
           },
         ),
       ],
