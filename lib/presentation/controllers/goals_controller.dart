@@ -87,6 +87,9 @@ class GoalController extends ChangeNotifier {
       _filteredGoals = List.from(_goals);
       _selectedStatusFilter = '';
       _selectedTypeFilter = '';
+
+      await checkAndUpdateExpiredGoals();
+
       notifyListeners();
     } catch (e) {
       _setError(e.toString());
@@ -285,5 +288,50 @@ class GoalController extends ChangeNotifier {
   void _clearError() {
     _errorMessage = '';
     notifyListeners();
+  }
+
+  Future<int> checkAndUpdateExpiredGoals() async {
+    if (_goals.isEmpty) return 0;
+
+    _setLoading(true);
+    int updatedCount = 0;
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day); // <== só a data
+
+    try {
+      final List<Goal> updatedList = [];
+      bool hasChanges = false;
+
+      for (final goal in _goals) {
+        final goalEndDate = DateTime(
+          goal.endDate.year,
+          goal.endDate.month,
+          goal.endDate.day,
+        );
+
+        if (goal.status == 'ativa' && goalEndDate.isBefore(today)) {
+          final updatedGoal = goal.copyWith(status: 'pendente');
+          await _updateGoalUseCase.execute(updatedGoal);
+          updatedList.add(updatedGoal);
+          updatedCount++;
+          hasChanges = true;
+        } else {
+          updatedList.add(goal);
+        }
+      }
+
+      if (hasChanges) {
+        _goals = updatedList;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Erro ao atualizar metas: $e');
+      _setError('Erro ao verificar metas expiradas');
+    } finally {
+      _setLoading(false);
+    }
+
+    return updatedCount;
   }
 }
