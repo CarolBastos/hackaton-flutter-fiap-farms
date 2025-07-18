@@ -9,68 +9,11 @@ import '../routes.dart';
 import 'components/menu_drawer.dart';
 import 'components/custom_app_bar.dart';
 
-class GoalsDashboard extends StatefulWidget {
+class GoalsDashboard extends StatelessWidget {
   const GoalsDashboard({super.key});
 
   @override
-  State<GoalsDashboard> createState() => _GoalsDashboardState();
-}
-
-class _GoalsDashboardState extends State<GoalsDashboard> {
-  bool _isInitializing = true;
-  int _expiredGoalsCount = 0;
-  bool _showExpiryNotification = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeDashboard();
-  }
-
-  Future<void> _initializeDashboard() async {
-    final controller = Provider.of<GoalController>(context, listen: false);
-
-    try {
-      // 1. Verificar e atualizar metas expiradas
-      _expiredGoalsCount = await controller.checkAndUpdateExpiredGoals();
-
-      // 2. Carregar metas (recarrega se houve atualizações ou se lista vazia)
-      if (_expiredGoalsCount > 0 || controller.goals.isEmpty) {
-        await controller.loadGoals();
-      }
-
-      // 3. Aplicar filtro se existir
-      if (controller.selectedStatusFilter.isNotEmpty) {
-        await controller.loadGoalsByStatus(controller.selectedStatusFilter);
-      }
-
-      // Mostrar notificação se houve metas expiradas
-      if (_expiredGoalsCount > 0 && mounted) {
-        setState(() => _showExpiryNotification = true);
-        Future.delayed(const Duration(seconds: 4), () {
-          if (mounted) setState(() => _showExpiryNotification = false);
-        });
-      }
-    } catch (e) {
-      debugPrint('Erro na inicialização: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar dados: ${e.toString()}')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isInitializing = false);
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (_isInitializing) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
     return Scaffold(
       appBar: DashboardAppBar(title: 'Dashboard de Metas'),
       drawer: MenuDrawer(currentRoute: Routes.goalsDashboard),
@@ -79,10 +22,11 @@ class _GoalsDashboardState extends State<GoalsDashboard> {
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: Stack(
-        children: [
-          Consumer<GoalController>(
-            builder: (context, controller, _) {
+      body: Consumer<GoalController>(
+        builder: (context, controller, _) {
+          return FutureBuilder<void>(
+            future: controller.initializeGoalsIfNeeded(),
+            builder: (context, snapshot) {
               if (controller.isLoading && controller.goals.isEmpty) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -99,7 +43,7 @@ class _GoalsDashboardState extends State<GoalsDashboard> {
               final stats = controller.getGoalStatistics(DateTime.now());
 
               return RefreshIndicator(
-                onRefresh: _initializeDashboard,
+                onRefresh: controller.reloadGoals,
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -116,41 +60,8 @@ class _GoalsDashboardState extends State<GoalsDashboard> {
                 ),
               );
             },
-          ),
-
-          if (_showExpiryNotification)
-            Positioned(
-              bottom: 20,
-              left: 20,
-              right: 20,
-              child: AnimatedOpacity(
-                opacity: _showExpiryNotification ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 300),
-                child: Material(
-                  elevation: 6,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.statusNaoAtingido,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      _expiredGoalsCount == 1
-                          ? '1 meta foi atualizada para pendente'
-                          : '$_expiredGoalsCount metas foram atualizadas para pendentes',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
+          );
+        },
       ),
     );
   }

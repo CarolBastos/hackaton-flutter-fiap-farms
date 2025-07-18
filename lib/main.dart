@@ -37,13 +37,13 @@ void main() async {
         ChangeNotifierProvider<ProductionController>(
           create: (_) => di.productionController,
         ),
-        ChangeNotifierProvider<SalesController>(
-          create: (_) => di.salesController,
+         ChangeNotifierProvider<SalesController>(
+          create: (context) => di.salesController(context),
         ),
         ChangeNotifierProvider<InventoryController>(
-          create: (_) => di.inventoryController,
+          create: (context) => di.inventoryController(context),
         ),
-        ChangeNotifierProvider<GoalController>( // Novo provider
+        ChangeNotifierProvider<GoalController>(
           create: (_) => di.goalController,
         ),
       ],

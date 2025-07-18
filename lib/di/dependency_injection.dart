@@ -5,6 +5,7 @@ import 'package:fiap_farms/domain/usecases/goals_usecases.dart';
 import 'package:fiap_farms/domain/usecases/register_usecase.dart';
 import 'package:fiap_farms/presentation/controllers/goals_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import '../data/repositories/auth_repository_impl.dart';
 import '../data/repositories/sales_repository_impl.dart';
 import '../data/repositories/product_repository_impl.dart';
@@ -47,7 +48,6 @@ class DependencyInjection {
   GetCurrentUserUseCase get getCurrentUserUseCase =>
       GetCurrentUserUseCase(authRepository);
 
-  // Novo use case adicionado
   RegisterUserUseCase get getRegisterUserUseCase =>
       RegisterUserUseCaseImpl(repository: authRepository);
 
@@ -138,22 +138,33 @@ class DependencyInjection {
     updateProductionStatusUseCase: updateProductionStatusUseCase,
   );
 
-  SalesController get salesController => SalesController(
-    createSalesRecordUseCase: createSalesRecordUseCase,
-    getSalesRecordsUseCase: getSalesRecordsUseCase,
-    getSalesRecordsByDateRangeUseCase: getSalesRecordsByDateRangeUseCase,
-    updateSalesRecordUseCase: updateSalesRecordUseCase,
-    deleteSalesRecordUseCase: deleteSalesRecordUseCase,
-  );
+  SalesController Function(BuildContext) get salesController =>
+      (context) => SalesController(
+        context: context,
+        createSalesRecordUseCase: createSalesRecordUseCase,
+        getSalesRecordsUseCase: getSalesRecordsUseCase,
+        getSalesRecordsByDateRangeUseCase: getSalesRecordsByDateRangeUseCase,
+        updateSalesRecordUseCase: updateSalesRecordUseCase,
+        deleteSalesRecordUseCase: deleteSalesRecordUseCase,
+        getGoalsByStatusUseCase: getGoalsByStatusUseCase,
+        updateGoalProgressUseCase: updateGoalProgressUseCase,
+        completeGoalUseCase: completeGoalUseCase,
+      );
 
-  InventoryController get inventoryController => InventoryController(
-    createInventoryItemUseCase: createInventoryItemUseCase,
-    getInventoryItemsUseCase: getInventoryItemsUseCase,
-    getInventoryItemByProductIdUseCase: getInventoryItemByProductIdUseCase,
-    updateInventoryItemUseCase: updateInventoryItemUseCase,
-    addToInventoryUseCase: addToInventoryUseCase,
-    removeFromInventoryUseCase: removeFromInventoryUseCase,
-  );
+  InventoryController Function(BuildContext) get inventoryController =>
+      (context) => InventoryController(
+        context: context,
+        createInventoryItemUseCase: createInventoryItemUseCase,
+        getInventoryItemsUseCase: getInventoryItemsUseCase,
+        getInventoryItemByProductIdUseCase: getInventoryItemByProductIdUseCase,
+        updateInventoryItemUseCase: updateInventoryItemUseCase,
+        addToInventoryUseCase: addToInventoryUseCase,
+        removeFromInventoryUseCase: removeFromInventoryUseCase,
+        getGoalsByStatusUseCase: getGoalsByStatusUseCase,
+        updateGoalProgressUseCase: updateGoalProgressUseCase,
+        completeGoalUseCase: completeGoalUseCase,
+        getActiveGoalsUseCase: getActiveGoalsUseCase,
+      );
 
   GoalController get goalController => GoalController(
     createGoalUseCase: createGoalUseCase,
