@@ -48,14 +48,16 @@ class InventoryController extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
 
+  String? lastAchievedGoalName;
+
   Future<void> addToInventory(String productId, double quantity) async {
     _setLoading(true);
     _clearError();
+    lastAchievedGoalName = null;
 
     try {
       await _addToInventoryUseCase.execute(productId, quantity);
       await loadInventoryItems();
-      print('Adicionando ao estoque: produto $productId, quantidade $quantity');
       await _updateGoalProgress(quantity, 'producao');
     } catch (e) {
       _setError(e.toString());
@@ -65,46 +67,24 @@ class InventoryController extends ChangeNotifier {
   }
 
   Future<void> _updateGoalProgress(double increment, String type) async {
-    print(
-      'Iniciando atualização de metas ativas do tipo: $type com incremento: $increment',
-    );
-
     final activeGoals = await _getGoalsByStatusUseCase.execute('ativa');
-    print('Metas ativas encontradas: ${activeGoals.length}');
 
     for (final goal in activeGoals.where((g) => g.type == type)) {
       final newValue = goal.currentValue + increment;
-      print(
-        'Meta: ${goal.name} (ID: ${goal.id}) | Valor atual: ${goal.currentValue}, Novo valor: $newValue',
-      );
-
       await _updateGoalProgressUseCase.execute(goal.id!, newValue);
-      notifyListeners();
 
       if (newValue >= goal.targetValue) {
-        print('Meta "${goal.name}" atingida! Marcando como concluída.');
         await _completeGoalUseCase.execute(goal.id!);
-        _showGoalAchievedPopup(goal.name);
+        lastAchievedGoalName = goal.name;
       }
     }
+
+    notifyListeners(); // Notifica UI para mostrar pop-up, se necessário
   }
 
-  void _showGoalAchievedPopup(String goalName) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('Meta Atingida!'),
-          content: Text('A meta "$goalName" foi atingida.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Fechar'),
-            ),
-          ],
-        ),
-      );
-    });
+  void clearLastAchievedGoalName() {
+    lastAchievedGoalName = null;
+    notifyListeners();
   }
 
   Future<void> createInventoryItem(InventoryItem item) async {

@@ -62,13 +62,54 @@ class _InventorySalesScreenState extends State<InventorySalesScreen>
   }
 }
 
-class _InventoryTab extends StatelessWidget {
+class _InventoryTab extends StatefulWidget {
   const _InventoryTab();
+
+  @override
+  State<_InventoryTab> createState() => _InventoryTabState();
+}
+
+class _InventoryTabState extends State<_InventoryTab> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final controller = Provider.of<InventoryController>(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkGoalAchieved(controller);
+    });
+  }
+
+  void _checkGoalAchieved(InventoryController controller) {
+    final goalName = controller.lastAchievedGoalName;
+    if (goalName != null) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Meta Atingida!'),
+          content: Text('A meta "$goalName" foi atingida.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                controller.clearLastAchievedGoalName();
+              },
+              child: const Text('Fechar'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<InventoryController, ProductController>(
       builder: (context, inventoryController, productController, child) {
+        // ✅ Checa a cada rebuild se há uma meta atingida
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _checkGoalAchieved(inventoryController);
+        });
+
         if (inventoryController.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -348,6 +389,30 @@ class _SalesTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<SalesController, ProductController>(
       builder: (context, salesController, productController, child) {
+        // Mostrar pop-up se uma meta foi atingida
+        if (salesController.lastAchievedGoalName != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: const Text('Meta Atingida!'),
+                content: Text(
+                  'Parabéns! A meta "${salesController.lastAchievedGoalName}" foi atingida.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      salesController.clearLastAchievedGoalName();
+                    },
+                    child: const Text('Fechar'),
+                  ),
+                ],
+              ),
+            );
+          });
+        }
+
         if (salesController.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }

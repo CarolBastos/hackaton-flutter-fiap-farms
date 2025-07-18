@@ -42,6 +42,13 @@ class SalesController extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
 
+  String? _lastAchievedGoalName;
+  String? get lastAchievedGoalName => _lastAchievedGoalName;
+  void clearLastAchievedGoalName() {
+    _lastAchievedGoalName = null;
+    notifyListeners();
+  }
+
   Future<void> createSalesRecord(SalesRecord salesRecord) async {
     _setLoading(true);
     _clearError();
@@ -50,7 +57,7 @@ class SalesController extends ChangeNotifier {
       final newRecord = await _createSalesRecordUseCase.execute(salesRecord);
       _salesRecords.insert(0, newRecord);
       print('Criando venda: ${salesRecord.quantitySold}');
-      await _updateGoalProgress(newRecord.quantitySold, 'vendas');
+      await _updateGoalProgress(newRecord.totalSaleAmount, 'vendas');
       notifyListeners();
     } catch (e) {
       _setError(e.toString());
@@ -60,46 +67,19 @@ class SalesController extends ChangeNotifier {
   }
 
   Future<void> _updateGoalProgress(double increment, String type) async {
-    print(
-      'Iniciando atualização de metas ativas do tipo: $type com incremento: $increment',
-    );
-
     final activeGoals = await _getGoalsByStatusUseCase.execute('ativa');
-    print('Metas ativas encontradas: ${activeGoals.length}');
 
     for (final goal in activeGoals.where((g) => g.type == type)) {
       final newValue = goal.currentValue + increment;
-      print(
-        'Meta: ${goal.name} (ID: ${goal.id}) | Valor atual: ${goal.currentValue}, Novo valor: $newValue',
-      );
-
       await _updateGoalProgressUseCase.execute(goal.id!, newValue);
-      notifyListeners();
 
       if (newValue >= goal.targetValue) {
-        print('Meta "${goal.name}" atingida! Marcando como concluída.');
         await _completeGoalUseCase.execute(goal.id!);
-        _showGoalAchievedPopup(goal.name);
+        _lastAchievedGoalName = goal.name;
       }
     }
-  }
 
-  void _showGoalAchievedPopup(String goalName) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('Meta Atingida!'),
-          content: Text('A meta "$goalName" foi atingida.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Fechar'),
-            ),
-          ],
-        ),
-      );
-    });
+    notifyListeners();
   }
 
   Future<void> loadSalesRecords() async {
