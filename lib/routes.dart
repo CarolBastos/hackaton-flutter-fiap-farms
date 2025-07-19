@@ -12,4 +12,5 @@ class Routes {
   static const String farmDashboard = '/farm-dashboard';
   static const String addFarm = '/add-farm';
   static const String farmDetails = '/farm-details';
+  static const String userDetails = '/user-details';
 }

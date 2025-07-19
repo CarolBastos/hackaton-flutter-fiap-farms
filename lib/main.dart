@@ -12,6 +12,7 @@ import 'package:fiap_farms/screens/production_dashboard.dart';
 import 'package:fiap_farms/screens/add_production_screen.dart';
 import 'package:fiap_farms/screens/inventory_sales_screen.dart';
 import 'package:fiap_farms/screens/goals_dashboard.dart';
+import 'package:fiap_farms/screens/user_profile_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'routes.dart';
@@ -90,6 +91,7 @@ class MyApp extends StatelessWidget {
         Routes.addGoal: (context) => const AddGoalScreen(),
         Routes.farmDashboard: (context) => const FarmDashboard(),
         Routes.addFarm: (context) => const AddFarmScreen(),
+        Routes.userDetails: (context) => const UserProfileScreen(),
       },
     );
   }

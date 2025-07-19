@@ -88,43 +88,53 @@ class _GoalsDashboardState extends State<GoalsDashboard> {
   }
 
   Widget _buildStatusCards(GoalStatistics stats) {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: 1.5,
-      children: [
-        _StatusCard(
-          title: 'Planejadas',
-          count: stats.plannedCount,
-          icon: Icons.schedule,
-          color: AppColors.statusPlanejado2,
-          emoji: '📅',
-        ),
-        _StatusCard(
-          title: 'Ativas',
-          count: stats.activeCount,
-          icon: Icons.trending_up,
-          color: AppColors.statusAtivo,
-          emoji: '📈',
-        ),
-        _StatusCard(
-          title: 'Atingidas',
-          count: stats.completedCount,
-          icon: Icons.check_circle,
-          color: AppColors.statusAtingido,
-          emoji: '✅',
-        ),
-        _StatusCard(
-          title: 'Canceladas/Pendentes',
-          count: stats.canceledCount + stats.pendingCount,
-          icon: Icons.cancel,
-          color: AppColors.statusNaoAtingido,
-          emoji: '❌',
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 600;
+        final cardWidth = isWide
+            ? (constraints.maxWidth - 48) /
+                  4 // 4 colunas com 16 de spacing
+            : (constraints.maxWidth - 24) / 2; // 2 colunas com 12 de spacing
+
+        return Wrap(
+          spacing: 16,
+          runSpacing: 16,
+          children: [
+            _StatusCard(
+              title: 'Planejadas',
+              count: stats.plannedCount,
+              icon: Icons.schedule,
+              color: AppColors.statusPlanejado2,
+              emoji: '📅',
+              width: cardWidth,
+            ),
+            _StatusCard(
+              title: 'Ativas',
+              count: stats.activeCount,
+              icon: Icons.trending_up,
+              color: AppColors.statusAtivo,
+              emoji: '📈',
+              width: cardWidth,
+            ),
+            _StatusCard(
+              title: 'Atingidas',
+              count: stats.completedCount,
+              icon: Icons.check_circle,
+              color: AppColors.statusAtingido,
+              emoji: '✅',
+              width: cardWidth,
+            ),
+            _StatusCard(
+              title: 'Não Atingidas',
+              count: stats.canceledCount + stats.pendingCount,
+              icon: Icons.cancel,
+              color: AppColors.statusNaoAtingido,
+              emoji: '❌',
+              width: cardWidth,
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -222,6 +232,7 @@ class _StatusCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String emoji;
+  final double? width;
 
   const _StatusCard({
     required this.title,
@@ -229,40 +240,44 @@ class _StatusCard extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.emoji,
+    this.width,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(emoji, style: const TextStyle(fontSize: 24)),
-                const SizedBox(width: 8),
-                Icon(icon, color: color, size: 24),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              count.toString(),
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: color,
+    return SizedBox(
+      width: width,
+      child: Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(emoji, style: const TextStyle(fontSize: 24)),
+                  const SizedBox(width: 8),
+                  Icon(icon, color: color, size: 24),
+                ],
               ),
-            ),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 14),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                count.toString(),
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );

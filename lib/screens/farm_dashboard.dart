@@ -79,30 +79,41 @@ class _FarmDashboardState extends State<FarmDashboard> {
   }
 
   Widget _buildSummaryCards(FarmController controller) {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: 1.5,
-      children: [
-        _SummaryCard(
-          title: 'Fazendas',
-          count: controller.farms.length,
-          icon: Icons.agriculture,
-          color: AppColors.primary,
-          emoji: '🏡',
-        ),
-        _SummaryCard(
-          title: 'Produção Anual',
-          value: controller.totalProduction,
-          unit: 'ton',
-          icon: Icons.assessment,
-          color: AppColors.success,
-          emoji: '📊',
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 600;
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: 2,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: isWide ? 4 : 2,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            childAspectRatio: isWide ? 1.2 : 0.9, // mais altura nos estreitos
+          ),
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return _SummaryCard(
+                title: 'Fazendas',
+                count: controller.farms.length,
+                icon: Icons.agriculture,
+                color: AppColors.primary,
+                emoji: '🏡',
+              );
+            } else {
+              return _SummaryCard(
+                title: 'Produção Anual',
+                value: controller.totalProduction,
+                unit: 'ton',
+                icon: Icons.assessment,
+                color: AppColors.success,
+                emoji: '📊',
+              );
+            }
+          },
+        );
+      },
     );
   }
 
@@ -174,33 +185,39 @@ class _SummaryCard extends StatelessWidget {
     return Card(
       elevation: 4,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(emoji, style: const TextStyle(fontSize: 24)),
-                const SizedBox(width: 8),
-                Icon(icon, color: color, size: 24),
+                Text(emoji, style: const TextStyle(fontSize: 22)),
+                const SizedBox(width: 6),
+                Icon(icon, color: color, size: 22),
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              count != null
-                  ? count.toString()
-                  : '${value!.toStringAsFixed(1)} $unit',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: color,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                count != null
+                    ? count.toString()
+                    : '${value!.toStringAsFixed(1)} ${unit ?? ''}',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
               ),
             ),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 14),
-              textAlign: TextAlign.center,
+            const SizedBox(height: 4),
+            Flexible(
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14),
+              ),
             ),
           ],
         ),

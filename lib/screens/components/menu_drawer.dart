@@ -88,7 +88,7 @@ class MenuDrawer extends StatelessWidget {
           },
         ),
         ListTile(
-          leading: const Icon(Icons.agriculture, color: AppColors.primary),
+          leading: const Icon(Icons.nature, color: AppColors.primary),
           title: const Text('Dashboard de Fazendas'),
           selected: currentRoute == Routes.farmDashboard,
           onTap: () {
@@ -161,7 +161,7 @@ class MenuDrawer extends StatelessWidget {
           title: const Text('Perfil'),
           onTap: () {
             Navigator.pop(context);
-            _showFeatureInDevelopment(context, 'Perfil');
+            Navigator.pushNamed(context, Routes.userDetails);
           },
         ),
         ListTile(
@@ -173,15 +173,6 @@ class MenuDrawer extends StatelessWidget {
           },
         ),
       ],
-    );
-  }
-
-  void _showFeatureInDevelopment(BuildContext context, String featureName) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$featureName - Funcionalidade em desenvolvimento'),
-        duration: const Duration(seconds: 2),
-      ),
     );
   }
 
