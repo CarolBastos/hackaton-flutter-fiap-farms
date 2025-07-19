@@ -9,4 +9,8 @@ class Routes {
   static const String changePassword = '/change-password';
   static const String goalsDashboard = '/goals-dashboard';
   static const String addGoal = '/add-goal';
+  static const String farmDashboard = '/farm-dashboard';
+  static const String addFarm = '/add-farm';
+  static const String farmDetails = '/farm-details';
+  static const String userDetails = '/user-details';
 }

@@ -25,6 +25,7 @@ class GoalController extends ChangeNotifier {
   final UpdateGoalUseCase _updateGoalUseCase;
   final DeleteGoalUseCase _deleteGoalUseCase;
   final GetGoalsByTypeUseCase _getGoalsByTypeUseCase;
+  final GetGoalsByStatusUseCase _getGoalsByStatusUseCase;
   final UpdateGoalProgressUseCase _updateGoalProgressUseCase;
   final CompleteGoalUseCase _completeGoalUseCase;
 
@@ -44,6 +45,7 @@ class GoalController extends ChangeNotifier {
        _updateGoalUseCase = updateGoalUseCase,
        _deleteGoalUseCase = deleteGoalUseCase,
        _getGoalsByTypeUseCase = getGoalsByTypeUseCase,
+       _getGoalsByStatusUseCase = getGoalsByStatusUseCase,
        _updateGoalProgressUseCase = updateGoalProgressUseCase,
        _completeGoalUseCase = completeGoalUseCase;
 
@@ -61,10 +63,32 @@ class GoalController extends ChangeNotifier {
   String get selectedStatusFilter => _selectedStatusFilter;
   String get selectedTypeFilter => _selectedTypeFilter;
 
+  Future<void> initializeGoalsIfNeeded() async {
+    _setLoading(true);
+    _clearError();
+    try {
+      await checkAndUpdateExpiredGoals();
+      _goals = await _getGoalsUseCase.execute();
+      if (_selectedStatusFilter.isNotEmpty) {
+        await loadGoalsByStatus(_selectedStatusFilter);
+      } else {
+        _filteredGoals = List.from(_goals);
+      }
+    } catch (e) {
+      _setError(e.toString());
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> reloadGoals() async {
+    await loadGoals();
+    await loadGoalsByStatus(_selectedStatusFilter);
+  }
+
   Future<void> createGoal(Goal goal) async {
     _setLoading(true);
     _clearError();
-
     try {
       final newGoal = await _createGoalUseCase.execute(goal);
       _goals.insert(0, newGoal);
@@ -72,7 +96,6 @@ class GoalController extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _setError(e.toString());
-      rethrow;
     } finally {
       _setLoading(false);
     }
@@ -81,15 +104,12 @@ class GoalController extends ChangeNotifier {
   Future<void> loadGoals() async {
     _setLoading(true);
     _clearError();
-
     try {
       _goals = await _getGoalsUseCase.execute();
       _filteredGoals = List.from(_goals);
       _selectedStatusFilter = '';
       _selectedTypeFilter = '';
-
       await checkAndUpdateExpiredGoals();
-
       notifyListeners();
     } catch (e) {
       _setError(e.toString());
@@ -101,7 +121,6 @@ class GoalController extends ChangeNotifier {
   Future<void> loadGoalsByStatus(String status) async {
     _setLoading(true);
     _clearError();
-
     try {
       if (status.isEmpty) {
         _filteredGoals = List.from(_goals);
@@ -159,11 +178,9 @@ class GoalController extends ChangeNotifier {
     );
   }
 
-  // Outros métodos permanecem iguais...
   Future<void> getGoalById(String id) async {
     _setLoading(true);
     _clearError();
-
     try {
       final goal = await _getGoalByIdUseCase.execute(id);
       if (goal != null) {
@@ -183,7 +200,6 @@ class GoalController extends ChangeNotifier {
   Future<void> updateGoal(Goal goal) async {
     _setLoading(true);
     _clearError();
-
     try {
       await _updateGoalUseCase.execute(goal);
       final index = _goals.indexWhere((g) => g.id == goal.id);
@@ -201,7 +217,6 @@ class GoalController extends ChangeNotifier {
   Future<void> deleteGoal(String id) async {
     _setLoading(true);
     _clearError();
-
     try {
       await _deleteGoalUseCase.execute(id);
       _goals.removeWhere((goal) => goal.id == id);
@@ -217,7 +232,6 @@ class GoalController extends ChangeNotifier {
   Future<void> loadGoalsByType(String type) async {
     _setLoading(true);
     _clearError();
-
     try {
       _filteredGoals = await _getGoalsByTypeUseCase.execute(type);
       _selectedTypeFilter = type;
@@ -232,10 +246,8 @@ class GoalController extends ChangeNotifier {
   Future<void> updateGoalProgress(String goalId, double newValue) async {
     _setLoading(true);
     _clearError();
-
     try {
       await _updateGoalProgressUseCase.execute(goalId, newValue);
-
       final index = _goals.indexWhere((g) => g.id == goalId);
       if (index != -1) {
         final oldGoal = _goals[index];
@@ -253,10 +265,8 @@ class GoalController extends ChangeNotifier {
   Future<void> completeGoal(String goalId) async {
     _setLoading(true);
     _clearError();
-
     try {
       await _completeGoalUseCase.execute(goalId);
-
       final index = _goals.indexWhere((g) => g.id == goalId);
       if (index != -1) {
         final oldGoal = _goals[index];
@@ -292,24 +302,18 @@ class GoalController extends ChangeNotifier {
 
   Future<int> checkAndUpdateExpiredGoals() async {
     if (_goals.isEmpty) return 0;
-
-    _setLoading(true);
     int updatedCount = 0;
-
     final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day); // <== só a data
-
+    final today = DateTime(now.year, now.month, now.day);
     try {
       final List<Goal> updatedList = [];
       bool hasChanges = false;
-
       for (final goal in _goals) {
         final goalEndDate = DateTime(
           goal.endDate.year,
           goal.endDate.month,
           goal.endDate.day,
         );
-
         if (goal.status == 'ativa' && goalEndDate.isBefore(today)) {
           final updatedGoal = goal.copyWith(status: 'pendente');
           await _updateGoalUseCase.execute(updatedGoal);
@@ -320,7 +324,6 @@ class GoalController extends ChangeNotifier {
           updatedList.add(goal);
         }
       }
-
       if (hasChanges) {
         _goals = updatedList;
         notifyListeners();
@@ -328,10 +331,7 @@ class GoalController extends ChangeNotifier {
     } catch (e) {
       debugPrint('Erro ao atualizar metas: $e');
       _setError('Erro ao verificar metas expiradas');
-    } finally {
-      _setLoading(false);
     }
-
     return updatedCount;
   }
 }

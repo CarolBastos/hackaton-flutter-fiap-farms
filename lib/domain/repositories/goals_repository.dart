@@ -9,7 +9,6 @@ abstract class GoalRepository {
   Future<void> deleteGoal(String id);
   Future<void> completeGoal(String id);
 
-  // Métodos adicionais específicos para metas
   Future<List<Goal>> getGoalsByType(String type);
   Future<List<Goal>> getActiveGoals();
   Future<List<Goal>> getGoalsByStatus(String status);

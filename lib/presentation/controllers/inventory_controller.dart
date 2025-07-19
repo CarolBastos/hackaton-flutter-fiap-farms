@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/inventory_item.dart';
 import '../../domain/usecases/inventory_usecases.dart';
+import '../../domain/usecases/goals_usecases.dart';
 
 class InventoryController extends ChangeNotifier {
   final CreateInventoryItemUseCase _createInventoryItemUseCase;
@@ -10,7 +11,14 @@ class InventoryController extends ChangeNotifier {
   final AddToInventoryUseCase _addToInventoryUseCase;
   final RemoveFromInventoryUseCase _removeFromInventoryUseCase;
 
+  final GetGoalsByStatusUseCase _getGoalsByStatusUseCase;
+  final UpdateGoalProgressUseCase _updateGoalProgressUseCase;
+  final CompleteGoalUseCase _completeGoalUseCase;
+
+  final BuildContext context;
+
   InventoryController({
+    required this.context,
     required CreateInventoryItemUseCase createInventoryItemUseCase,
     required GetInventoryItemsUseCase getInventoryItemsUseCase,
     required GetInventoryItemByProductIdUseCase
@@ -18,12 +26,19 @@ class InventoryController extends ChangeNotifier {
     required UpdateInventoryItemUseCase updateInventoryItemUseCase,
     required AddToInventoryUseCase addToInventoryUseCase,
     required RemoveFromInventoryUseCase removeFromInventoryUseCase,
+    required GetGoalsByStatusUseCase getGoalsByStatusUseCase,
+    required UpdateGoalProgressUseCase updateGoalProgressUseCase,
+    required CompleteGoalUseCase completeGoalUseCase,
+    required GetActiveGoalsUseCase getActiveGoalsUseCase,
   }) : _createInventoryItemUseCase = createInventoryItemUseCase,
        _getInventoryItemsUseCase = getInventoryItemsUseCase,
        _getInventoryItemByProductIdUseCase = getInventoryItemByProductIdUseCase,
        _updateInventoryItemUseCase = updateInventoryItemUseCase,
        _addToInventoryUseCase = addToInventoryUseCase,
-       _removeFromInventoryUseCase = removeFromInventoryUseCase;
+       _removeFromInventoryUseCase = removeFromInventoryUseCase,
+       _getGoalsByStatusUseCase = getGoalsByStatusUseCase,
+       _updateGoalProgressUseCase = updateGoalProgressUseCase,
+       _completeGoalUseCase = completeGoalUseCase;
 
   List<InventoryItem> _inventoryItems = [];
   bool _isLoading = false;
@@ -32,6 +47,45 @@ class InventoryController extends ChangeNotifier {
   List<InventoryItem> get inventoryItems => _inventoryItems;
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
+
+  String? lastAchievedGoalName;
+
+  Future<void> addToInventory(String productId, double quantity) async {
+    _setLoading(true);
+    _clearError();
+    lastAchievedGoalName = null;
+
+    try {
+      await _addToInventoryUseCase.execute(productId, quantity);
+      await loadInventoryItems();
+      await _updateGoalProgress(quantity, 'producao');
+    } catch (e) {
+      _setError(e.toString());
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> _updateGoalProgress(double increment, String type) async {
+    final activeGoals = await _getGoalsByStatusUseCase.execute('ativa');
+
+    for (final goal in activeGoals.where((g) => g.type == type)) {
+      final newValue = goal.currentValue + increment;
+      await _updateGoalProgressUseCase.execute(goal.id!, newValue);
+
+      if (newValue >= goal.targetValue) {
+        await _completeGoalUseCase.execute(goal.id!);
+        lastAchievedGoalName = goal.name;
+      }
+    }
+
+    notifyListeners(); // Notifica UI para mostrar pop-up, se necessário
+  }
+
+  void clearLastAchievedGoalName() {
+    lastAchievedGoalName = null;
+    notifyListeners();
+  }
 
   Future<void> createInventoryItem(InventoryItem item) async {
     _setLoading(true);
@@ -84,20 +138,6 @@ class InventoryController extends ChangeNotifier {
         _inventoryItems[index] = item;
         notifyListeners();
       }
-    } catch (e) {
-      _setError(e.toString());
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  Future<void> addToInventory(String productId, double quantity) async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      await _addToInventoryUseCase.execute(productId, quantity);
-      await loadInventoryItems(); // Recarregar para refletir mudanças
     } catch (e) {
       _setError(e.toString());
     } finally {

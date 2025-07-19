@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/sales_record.dart';
 import '../../domain/usecases/sales_usecases.dart';
+import '../../domain/usecases/goals_usecases.dart';
 
 class SalesController extends ChangeNotifier {
   final CreateSalesRecordUseCase _createSalesRecordUseCase;
@@ -8,19 +9,30 @@ class SalesController extends ChangeNotifier {
   final GetSalesRecordsByDateRangeUseCase _getSalesRecordsByDateRangeUseCase;
   final UpdateSalesRecordUseCase _updateSalesRecordUseCase;
   final DeleteSalesRecordUseCase _deleteSalesRecordUseCase;
+  final GetGoalsByStatusUseCase _getGoalsByStatusUseCase;
+  final UpdateGoalProgressUseCase _updateGoalProgressUseCase;
+  final CompleteGoalUseCase _completeGoalUseCase;
+  final BuildContext context;
 
   SalesController({
+    required this.context,
     required CreateSalesRecordUseCase createSalesRecordUseCase,
     required GetSalesRecordsUseCase getSalesRecordsUseCase,
     required GetSalesRecordsByDateRangeUseCase
     getSalesRecordsByDateRangeUseCase,
     required UpdateSalesRecordUseCase updateSalesRecordUseCase,
     required DeleteSalesRecordUseCase deleteSalesRecordUseCase,
+    required GetGoalsByStatusUseCase getGoalsByStatusUseCase,
+    required UpdateGoalProgressUseCase updateGoalProgressUseCase,
+    required CompleteGoalUseCase completeGoalUseCase,
   }) : _createSalesRecordUseCase = createSalesRecordUseCase,
        _getSalesRecordsUseCase = getSalesRecordsUseCase,
        _getSalesRecordsByDateRangeUseCase = getSalesRecordsByDateRangeUseCase,
        _updateSalesRecordUseCase = updateSalesRecordUseCase,
-       _deleteSalesRecordUseCase = deleteSalesRecordUseCase;
+       _deleteSalesRecordUseCase = deleteSalesRecordUseCase,
+       _getGoalsByStatusUseCase = getGoalsByStatusUseCase,
+       _updateGoalProgressUseCase = updateGoalProgressUseCase,
+       _completeGoalUseCase = completeGoalUseCase;
 
   List<SalesRecord> _salesRecords = [];
   bool _isLoading = false;
@@ -30,21 +42,44 @@ class SalesController extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
 
+  String? _lastAchievedGoalName;
+  String? get lastAchievedGoalName => _lastAchievedGoalName;
+  void clearLastAchievedGoalName() {
+    _lastAchievedGoalName = null;
+    notifyListeners();
+  }
+
   Future<void> createSalesRecord(SalesRecord salesRecord) async {
     _setLoading(true);
     _clearError();
 
     try {
-      final newSalesRecord = await _createSalesRecordUseCase.execute(
-        salesRecord,
-      );
-      _salesRecords.insert(0, newSalesRecord);
+      final newRecord = await _createSalesRecordUseCase.execute(salesRecord);
+      _salesRecords.insert(0, newRecord);
+      print('Criando venda: ${salesRecord.quantitySold}');
+      await _updateGoalProgress(newRecord.totalSaleAmount, 'vendas');
       notifyListeners();
     } catch (e) {
       _setError(e.toString());
     } finally {
       _setLoading(false);
     }
+  }
+
+  Future<void> _updateGoalProgress(double increment, String type) async {
+    final activeGoals = await _getGoalsByStatusUseCase.execute('ativa');
+
+    for (final goal in activeGoals.where((g) => g.type == type)) {
+      final newValue = goal.currentValue + increment;
+      await _updateGoalProgressUseCase.execute(goal.id!, newValue);
+
+      if (newValue >= goal.targetValue) {
+        await _completeGoalUseCase.execute(goal.id!);
+        _lastAchievedGoalName = goal.name;
+      }
+    }
+
+    notifyListeners();
   }
 
   Future<void> loadSalesRecords() async {

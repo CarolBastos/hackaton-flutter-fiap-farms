@@ -1,3 +1,6 @@
+import 'package:fiap_farms/routes.dart';
+import 'package:fiap_farms/screens/components/custom_app_bar.dart';
+import 'package:fiap_farms/screens/components/menu_drawer.dart';
 import 'package:fiap_farms/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,8 +20,9 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-  
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
   String _selectedRole = 'user';
   bool _isAdmin = false;
 
@@ -78,10 +82,8 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F3FC),
-      appBar: AppBar(
-        title: const Text('Cadastrar Novo Usuário'),
-        backgroundColor: AppColors.primary[800],
-      ),
+      appBar: DashboardAppBar(title: 'Cadastrar Novo Usuário'),
+      drawer: MenuDrawer(currentRoute: Routes.adminRegister),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30.0),
         child: Center(
@@ -154,10 +156,7 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
                       value: 'admin',
                       child: Text('Administrador'),
                     ),
-                    DropdownMenuItem(
-                      value: 'manager',
-                      child: Text('Gerente'),
-                    ),
+                    DropdownMenuItem(value: 'manager', child: Text('Gerente')),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -212,17 +211,19 @@ class _AdminRegisterScreenState extends State<AdminRegisterScreen> {
       );
       return;
     }
-    
+
     if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('As senhas não coincidem')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('As senhas não coincidem')));
       return;
     }
-    
+
     if (_passwordController.text.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('A senha deve ter pelo menos 6 caracteres')),
+        const SnackBar(
+          content: Text('A senha deve ter pelo menos 6 caracteres'),
+        ),
       );
       return;
     }

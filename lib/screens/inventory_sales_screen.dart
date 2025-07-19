@@ -62,13 +62,54 @@ class _InventorySalesScreenState extends State<InventorySalesScreen>
   }
 }
 
-class _InventoryTab extends StatelessWidget {
+class _InventoryTab extends StatefulWidget {
   const _InventoryTab();
+
+  @override
+  State<_InventoryTab> createState() => _InventoryTabState();
+}
+
+class _InventoryTabState extends State<_InventoryTab> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final controller = Provider.of<InventoryController>(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkGoalAchieved(controller);
+    });
+  }
+
+  void _checkGoalAchieved(InventoryController controller) {
+    final goalName = controller.lastAchievedGoalName;
+    if (goalName != null) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Meta Atingida!'),
+          content: Text('A meta "$goalName" foi atingida.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                controller.clearLastAchievedGoalName();
+              },
+              child: const Text('Fechar'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<InventoryController, ProductController>(
       builder: (context, inventoryController, productController, child) {
+        // ✅ Checa a cada rebuild se há uma meta atingida
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _checkGoalAchieved(inventoryController);
+        });
+
         if (inventoryController.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -348,6 +389,30 @@ class _SalesTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<SalesController, ProductController>(
       builder: (context, salesController, productController, child) {
+        // Mostrar pop-up se uma meta foi atingida
+        if (salesController.lastAchievedGoalName != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: const Text('Meta Atingida!'),
+                content: Text(
+                  'Parabéns! A meta "${salesController.lastAchievedGoalName}" foi atingida.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      salesController.clearLastAchievedGoalName();
+                    },
+                    child: const Text('Fechar'),
+                  ),
+                ],
+              ),
+            );
+          });
+        }
+
         if (salesController.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -521,6 +586,7 @@ class _AddSaleDialogState extends State<_AddSaleDialog> {
   String? selectedProductId;
   String? stockError;
   double? availableStock;
+
   final quantityController = TextEditingController();
   final priceController = TextEditingController();
   final clientController = TextEditingController();
@@ -533,121 +599,138 @@ class _AddSaleDialogState extends State<_AddSaleDialog> {
     super.dispose();
   }
 
+  bool isFormValid() {
+    final hasProduct = selectedProductId != null;
+    final hasQuantity = quantityController.text.isNotEmpty;
+    final hasPrice = priceController.text.isNotEmpty;
+    final hasNoStockError = stockError == null;
+    return hasProduct && hasQuantity && hasPrice && hasNoStockError;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Registrar Venda'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          DropdownButtonFormField<String>(
-            value: selectedProductId,
-            decoration: const InputDecoration(
-              labelText: 'Produto',
-              border: OutlineInputBorder(),
-            ),
-            items: widget.productController.products.map((product) {
-              return DropdownMenuItem(
-                value: product.id,
-                child: Text(product.name),
-              );
-            }).toList(),
-            onChanged: (value) async {
-              setState(() {
-                selectedProductId = value;
-                stockError = null;
-                availableStock = null;
-              });
-
-              // Verificar estoque quando produto for selecionado
-              if (value != null) {
-                final inventoryController = Provider.of<InventoryController>(
-                  context,
-                  listen: false,
-                );
-                final inventoryItem = await inventoryController
-                    .getInventoryItemByProductId(value);
-
-                setState(() {
-                  if (inventoryItem != null) {
-                    availableStock = inventoryItem.availableQuantity;
-                    if (availableStock == 0) {
-                      stockError = 'Produto sem estoque disponível';
-                    }
-                  } else {
-                    stockError = 'Produto não encontrado no estoque';
-                  }
-                });
-              }
-            },
+      content: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
           ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: quantityController,
-            decoration: const InputDecoration(
-              labelText: 'Quantidade',
-              border: OutlineInputBorder(),
-            ),
-            keyboardType: TextInputType.number,
-            onChanged: (value) {
-              if (value.isNotEmpty && availableStock != null) {
-                final quantity = double.tryParse(value);
-                if (quantity != null && quantity > availableStock!) {
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                value: selectedProductId,
+                decoration: const InputDecoration(
+                  labelText: 'Produto',
+                  border: OutlineInputBorder(),
+                ),
+                items: widget.productController.products.map((product) {
+                  return DropdownMenuItem(
+                    value: product.id,
+                    child: Text(product.name),
+                  );
+                }).toList(),
+                onChanged: (value) async {
                   setState(() {
-                    stockError =
-                        'Quantidade solicitada (${quantity.toStringAsFixed(1)}) excede o estoque disponível (${availableStock!.toStringAsFixed(1)})';
-                  });
-                } else {
-                  setState(() {
+                    selectedProductId = value;
                     stockError = null;
+                    availableStock = null;
                   });
-                }
-              }
-            },
-          ),
-          if (availableStock != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text(
-                'Estoque disponível: ${availableStock!.toStringAsFixed(1)}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.success,
-                  fontWeight: FontWeight.w500,
-                ),
+
+                  if (value != null) {
+                    final inventoryController =
+                        Provider.of<InventoryController>(
+                          context,
+                          listen: false,
+                        );
+                    final inventoryItem = await inventoryController
+                        .getInventoryItemByProductId(value);
+
+                    setState(() {
+                      if (inventoryItem != null) {
+                        availableStock = inventoryItem.availableQuantity;
+                        if (availableStock == 0) {
+                          stockError = 'Produto sem estoque disponível';
+                        }
+                      } else {
+                        stockError = 'Produto não encontrado no estoque';
+                      }
+                    });
+                  }
+                },
               ),
-            ),
-          if (stockError != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text(
-                stockError!,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.errorText,
-                  fontWeight: FontWeight.w500,
+              const SizedBox(height: 16),
+              TextField(
+                controller: quantityController,
+                decoration: const InputDecoration(
+                  labelText: 'Quantidade',
+                  border: OutlineInputBorder(),
                 ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  final quantity = double.tryParse(value);
+                  if (quantity != null &&
+                      availableStock != null &&
+                      quantity > availableStock!) {
+                    setState(() {
+                      stockError =
+                          'Quantidade solicitada (${quantity.toStringAsFixed(1)}) excede o estoque disponível (${availableStock!.toStringAsFixed(1)})';
+                    });
+                  } else {
+                    setState(() {
+                      stockError = null;
+                    });
+                  }
+                },
               ),
-            ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: priceController,
-            decoration: const InputDecoration(
-              labelText: 'Preço por unidade',
-              border: OutlineInputBorder(),
-              prefixText: 'R\$ ',
-            ),
-            keyboardType: TextInputType.number,
+              if (availableStock != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    'Estoque disponível: ${availableStock!.toStringAsFixed(1)}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.success,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              if (stockError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    stockError!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.errorText,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: priceController,
+                decoration: const InputDecoration(
+                  labelText: 'Preço por unidade',
+                  border: OutlineInputBorder(),
+                  prefixText: 'R\$ ',
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: clientController,
+                decoration: const InputDecoration(
+                  labelText: 'Cliente (opcional)',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: clientController,
-            decoration: const InputDecoration(
-              labelText: 'Cliente (opcional)',
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ],
+        ),
       ),
       actions: [
         TextButton(
@@ -655,11 +738,7 @@ class _AddSaleDialogState extends State<_AddSaleDialog> {
           child: const Text('Cancelar'),
         ),
         ElevatedButton(
-          onPressed:
-              (selectedProductId != null &&
-                  quantityController.text.isNotEmpty &&
-                  priceController.text.isNotEmpty &&
-                  stockError == null)
+          onPressed: isFormValid()
               ? () async {
                   final quantity = double.tryParse(quantityController.text);
                   final price = double.tryParse(priceController.text);
@@ -668,9 +747,7 @@ class _AddSaleDialogState extends State<_AddSaleDialog> {
                       quantity > 0 &&
                       price > 0) {
                     final selectedProduct = widget.productController.products
-                        .firstWhere(
-                          (product) => product.id == selectedProductId,
-                        );
+                        .firstWhere((p) => p.id == selectedProductId);
 
                     final totalAmount = quantity * price;
                     final estimatedCost =
@@ -694,17 +771,16 @@ class _AddSaleDialogState extends State<_AddSaleDialog> {
                       createdBy: '',
                     );
 
-                    // Primeiro processa a venda no estoque
                     await Provider.of<InventoryController>(
                       context,
                       listen: false,
                     ).processSale(selectedProductId!, quantity);
 
-                    // Depois registra a venda
                     Provider.of<SalesController>(
                       context,
                       listen: false,
                     ).createSalesRecord(salesRecord);
+
                     Navigator.pop(context);
                   }
                 }

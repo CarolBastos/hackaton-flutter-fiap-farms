@@ -151,30 +151,46 @@ class _SalesDashboardState extends State<SalesDashboard> {
                   ),
                   const SizedBox(height: 16),
                   // Indicadores
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _IndicatorCard(
-                        title: 'Vendas',
-                        value: 'R\$ ${totalSales.toStringAsFixed(2)}',
-                        icon: Icons.shopping_cart,
-                      ),
-                      _IndicatorCard(
-                        title: 'Lucro',
-                        value: 'R\$ ${totalProfit.toStringAsFixed(2)}',
-                        icon: Icons.attach_money,
-                      ),
-                      _IndicatorCard(
-                        title: 'Quantidade de Vendas',
-                        value: '$orders',
-                        icon: Icons.receipt_long,
-                      ),
-                      _IndicatorCard(
-                        title: 'Crescimento',
-                        value: '${(growth * 100).toStringAsFixed(1)}%',
-                        icon: Icons.trending_up,
-                      ),
-                    ],
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isWide = constraints.maxWidth > 600;
+                      final cardWidth = isWide
+                          ? (constraints.maxWidth - 36) /
+                                4 // 4 colunas com espaçamento
+                          : (constraints.maxWidth - 24) /
+                                2; // 2 colunas com espaçamento
+
+                      return Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          _IndicatorCard(
+                            title: 'Vendas',
+                            value: 'R\$ ${totalSales.toStringAsFixed(2)}',
+                            icon: Icons.shopping_cart,
+                            width: cardWidth,
+                          ),
+                          _IndicatorCard(
+                            title: 'Lucro',
+                            value: 'R\$ ${totalProfit.toStringAsFixed(2)}',
+                            icon: Icons.attach_money,
+                            width: cardWidth,
+                          ),
+                          _IndicatorCard(
+                            title: 'Qtd. Vendas',
+                            value: '$orders',
+                            icon: Icons.receipt_long,
+                            width: cardWidth,
+                          ),
+                          _IndicatorCard(
+                            title: 'Crescimento',
+                            value: '${(growth * 100).toStringAsFixed(1)}%',
+                            icon: Icons.trending_up,
+                            width: cardWidth,
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 24),
                   Row(
@@ -187,6 +203,11 @@ class _SalesDashboardState extends State<SalesDashboard> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
                       ElevatedButton.icon(
                         onPressed: () {
                           Navigator.pushNamed(context, Routes.addProduct);
@@ -327,10 +348,11 @@ class _SalesDashboardState extends State<SalesDashboard> {
                               size: 20,
                             ),
                           ),
-                          title: Row(
+                          title: Wrap(
+                            spacing: 8,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               Text(product.name),
-                              const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 6,
@@ -389,73 +411,87 @@ class _SalesDashboardState extends State<SalesDashboard> {
                     ),
                     SizedBox(
                       height: 220,
-                      child: BarChart(
-                        BarChartData(
-                          alignment: BarChartAlignment.spaceBetween,
-                          maxY:
-                              (productsWithProfit.first['profit'] as double) *
-                              1.2,
-                          titlesData: FlTitlesData(
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 40,
-                                getTitlesWidget: (value, meta) {
-                                  if (value % 5000 == 0) {
-                                    return Text('R\$${value ~/ 1000}k');
-                                  }
-                                  return const SizedBox.shrink();
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: SizedBox(
+                          width: (productsWithProfit.length * 80)
+                              .toDouble()
+                              .clamp(300.0, 1000.0),
+                          child: BarChart(
+                            BarChartData(
+                              alignment: BarChartAlignment.spaceBetween,
+                              maxY:
+                                  (productsWithProfit.first['profit']
+                                      as double) *
+                                  1.2,
+                              titlesData: FlTitlesData(
+                                leftTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    reservedSize: 40,
+                                    getTitlesWidget: (value, meta) {
+                                      if (value % 5000 == 0) {
+                                        return Text('R\$${value ~/ 1000}k');
+                                      }
+                                      return const SizedBox.shrink();
+                                    },
+                                  ),
+                                ),
+                                bottomTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    getTitlesWidget: (value, meta) {
+                                      final idx = value.toInt();
+                                      if (idx < 0 ||
+                                          idx >= productsWithProfit.length) {
+                                        return const SizedBox.shrink();
+                                      }
+                                      final product =
+                                          productsWithProfit[idx]['product']
+                                              as Product;
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                          top: 8.0,
+                                        ),
+                                        child: Text(
+                                          product.name,
+                                          style: const TextStyle(fontSize: 10),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                rightTitles: AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false),
+                                ),
+                                topTitles: AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false),
+                                ),
+                              ),
+                              borderData: FlBorderData(show: false),
+                              barGroups: List.generate(
+                                productsWithProfit.length,
+                                (i) {
+                                  final profit =
+                                      productsWithProfit[i]['profit'] as double;
+                                  return BarChartGroupData(
+                                    x: i,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: profit,
+                                        color: profit > 0
+                                            ? AppColors.success
+                                            : profit < 0
+                                            ? AppColors.danger
+                                            : AppColors.textSecondary,
+                                        width: 22,
+                                      ),
+                                    ],
+                                  );
                                 },
                               ),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                getTitlesWidget: (value, meta) {
-                                  final idx = value.toInt();
-                                  if (idx < 0 ||
-                                      idx >= productsWithProfit.length) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  final product =
-                                      productsWithProfit[idx]['product']
-                                          as Product;
-                                  return Text(product.name);
-                                },
-                              ),
-                            ),
-                            rightTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            topTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
                             ),
                           ),
-                          borderData: FlBorderData(show: false),
-                          barGroups: List.generate(productsWithProfit.length, (
-                            i,
-                          ) {
-                            return BarChartGroupData(
-                              x: i,
-                              barRods: [
-                                BarChartRodData(
-                                  toY:
-                                      productsWithProfit[i]['profit'] as double,
-                                  color:
-                                      (productsWithProfit[i]['profit']
-                                              as double) >
-                                          0
-                                      ? AppColors.success
-                                      : (productsWithProfit[i]['profit']
-                                                as double) <
-                                            0
-                                      ? AppColors.danger
-                                      : AppColors.textSecondary,
-                                  width: 22,
-                                ),
-                              ],
-                            );
-                          }),
                         ),
                       ),
                     ),
@@ -547,28 +583,37 @@ class _IndicatorCard extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
+  final double? width;
+
   const _IndicatorCard({
     required this.title,
     required this.value,
     required this.icon,
+    this.width,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 28, color: AppColors.primary),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            Text(title, style: const TextStyle(fontSize: 14)),
-          ],
+    return SizedBox(
+      width: width,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 28, color: AppColors.primary),
+              const SizedBox(height: 8),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(title, style: const TextStyle(fontSize: 14)),
+            ],
+          ),
         ),
       ),
     );

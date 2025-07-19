@@ -1,3 +1,5 @@
+import 'package:fiap_farms/screens/components/custom_app_bar.dart';
+import 'package:fiap_farms/screens/components/menu_drawer.dart';
 import 'package:fiap_farms/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -34,13 +36,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F3FC),
-      appBar: widget.isFirstLogin
-          ? null
-          : AppBar(
-              title: const Text('Alterar Senha'),
-              backgroundColor: AppColors.primary[800],
-            ),
+      appBar: DashboardAppBar(title: 'Alterar Senha'),
+      drawer: MenuDrawer(currentRoute: Routes.dashboard),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30.0),
         child: Center(
