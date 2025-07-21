@@ -1,5 +1,6 @@
 import 'package:fiap_farms/domain/entities/farm.dart';
 import 'package:fiap_farms/presentation/controllers/farm_controller.dart';
+import 'package:fiap_farms/presentation/controllers/product_controller.dart';
 import 'package:fiap_farms/screens/components/custom_app_bar.dart';
 import 'package:fiap_farms/screens/components/custom_button.dart';
 import 'package:fiap_farms/screens/components/custom_text_field.dart';
@@ -24,20 +25,56 @@ class _AddFarmScreenState extends State<AddFarmScreen> {
   final _areaController = TextEditingController();
 
   String _selectedProductType = 'Soja';
-  double _latitude = -15.7934; // Valores padrão (exemplo)
+  double _latitude = -15.7934;
   double _longitude = -47.8822;
   DateTime? _establishedDate;
 
-  final List<String> _productTypes = [
-    'Soja',
-    'Milho',
-    'Café',
-    'Cana-de-açúcar',
-    'Algodão',
-    'Trigo',
-    'Arroz',
-    'Outros'
-  ];
+  List<String> _productTypes = ['Soja'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProductTypes();
+  }
+
+  Future<void> _loadProductTypes() async {
+    try {
+      final productController = Provider.of<ProductController>(
+        context,
+        listen: false,
+      );
+      await productController.loadProducts();
+
+      if (mounted) {
+        setState(() {
+          _productTypes = productController.products
+              .map((product) => product.name)
+              .toList();
+
+          if (_productTypes.isEmpty || !_productTypes.contains('Soja')) {
+            _productTypes.insert(0, 'Soja');
+          }
+
+          _selectedProductType = _productTypes.first;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _productTypes = [
+            'Soja',
+            'Milho',
+            'Café',
+            'Cana-de-açúcar',
+            'Algodão',
+            'Trigo',
+            'Arroz',
+            'Outros',
+          ];
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,10 +128,7 @@ class _AddFarmScreenState extends State<AddFarmScreen> {
                     prefixIcon: Icon(Icons.category),
                   ),
                   items: _productTypes.map((type) {
-                    return DropdownMenuItem(
-                      value: type,
-                      child: Text(type),
-                    );
+                    return DropdownMenuItem(value: type, child: Text(type));
                   }).toList(),
                   onChanged: (value) {
                     if (value != null && mounted) {
